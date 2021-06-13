@@ -10,14 +10,16 @@ static class Program
         Task task = new Task("kdb", new DateTime(2021, 07, 08), 5, Type.NORMAL, false);
         Task t = new Task("Test", new DateTime(2021, 07, 07), 3, Type.NORMAL, false);
         // splitting tasks problem - try with task duration 4
-        Task t1 = new Task("Test1", new DateTime(2021, 06, 12), 5, Type.NORMAL, false);
+        Task t1 = new Task("Test1", new DateTime(2021, 06, 14), 5, Type.NORMAL, false);
         Task t2 = new Task("Test2", new DateTime(2021, 08, 07), 2, Type.NORMAL, false);
         Task t3 = new Task("Test3", new DateTime(2021, 07, 10), 6, Type.NORMAL, false);
         // doesn't add task 
         // also try date 2021, 07, 07
         Task t4 = new Task("Test4", new DateTime(2021, 07, 07), 2, Type.NORMAL, false);
         Task t5 = new Task("Test5", new DateTime(2021, 07, 15), 7, Type.NORMAL, false);
-        Task t6 = new Task("Test6", new DateTime(2021, 06, 15), 10, Type.NORMAL, false);
+        // when t6 is 10 day1 has 15 hours
+        // TODO: Modify the error state
+        Task t6 = new Task("Test6", new DateTime(2021, 06, 15), 7, Type.NORMAL, false);
 
         calendar.addTask(task);
         calendar.addTask(t);
@@ -27,9 +29,11 @@ static class Program
         // TODO: Check what happens when you add this task
         calendar.print();
         calendar.addTask(t4);
-        //calendar.addTask(t5);
+        calendar.addTask(t5);
+        calendar.print();
+
         WriteLine();
-        //calendar.addTask(t6);
+        calendar.addTask(t6);
         calendar.print();
     }
 }

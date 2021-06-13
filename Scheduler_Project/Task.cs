@@ -65,4 +65,13 @@ public class Task
         //day.removeTask(secondTask);
         firstTask.splitTaskPtr = secondTask.splitTaskPtr;
     }
+
+    // TODO: Think of delete, should I have single function for merge and delete?
+    public void splitAndMerge(Task task, int[] hours, int index) {
+        if (task.isSplit) {
+            //if(task.duration)
+        }
+        task.duration = hours[0];
+
+    }
 }

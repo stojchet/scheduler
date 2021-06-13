@@ -42,8 +42,28 @@ public class Day
         tasks.Insert(index, task);
     }
 
+    public void changeTask(Task task, Task changedTask) {
+        for (int i = 0; i < tasks.Count; ++i) {
+            if (tasks[i] == task) {
+                tasks[i] = changedTask;
+                return;
+            }
+        }
+        WriteLine("Problem while changing the task - task not found in day");
+    }
+
     public void removeTask(Task task)
     {
         tasks.Remove(task);
+    }
+
+    public int getTaskIndex(Task task) {
+        for(int i = 0; i < tasks.Count; ++i) {
+            if(tasks[i] == task) {
+                return i;
+            }
+        }
+        WriteLine("No such task exists");
+        return -1;
     }
 }

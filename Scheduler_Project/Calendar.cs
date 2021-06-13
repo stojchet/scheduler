@@ -150,9 +150,11 @@ public class Calendar
         {
             nextDay.addTask(task, 0);
         }
-        reorderCalendar(nextDay, hours);
+        reorderCalendar(nextDay, nextDay.hoursToShift);
     }
 
+    // get the tasks that need to be shifted and remove them from the day
+    // TODO: should the removing part be done in the reorder caledar function?
     List<Task> getTasksGivenHours(Day day, int hours)
     {
         // I'm checking the task that needs to be added as well
@@ -172,24 +174,27 @@ public class Calendar
                     -Add hours equally to each day from the current date up until the deadline of the task
                  */
             }
-            // if the task is fixed, again, do not shift it, it must stay in that day
             if (day.tasks[i].type != Type.FIXED)
             {
+                // should never get a negative value?
                 if (hours == 0) { break; }
 
                 Task curTask = day.tasks[i];
 
                 if (curTask.duration > hours)
                 {
+                    int additionalHours = 0;
                     // merge then split the task
                     if (curTask.isSplit)
                     {
+                        additionalHours = curTask.splitTaskPtr.duration;
                         // TODO: take care of the case when the task would be split into multiple days/tasks
-                        day.removeTask(curTask.splitTaskPtr);
+                        day.nextDay.removeTask(curTask.splitTaskPtr);
                         curTask.mergeTasks(curTask, curTask.splitTaskPtr);
                     }
+                    // TODO: if curTask.duration - hours is 0 then the task should be removed from day and the merged task should be added to the next day
                     // hours is the value that needs to be removed, so, in that day we're left with curTask.duration - hours
-                    int[] splitHours = { curTask.duration - hours, hours};
+                    int[] splitHours = { curTask.duration - hours - additionalHours, hours + additionalHours};
                     curTask.splitTask(splitHours, 0, curTask);
                     hours = 0;
                     tasks.Add(curTask.splitTaskPtr);
@@ -197,13 +202,22 @@ public class Calendar
                 else
                 {
                     // && hours -= curTask.duration == 0?
+                    int curTaskHours = curTask.duration;
+                    // oone special case: when the last task of the day is split and we need to shift the whole thing
                     if (curTask.isSplit) {
-                        curTask.mergeTasks(curTask, curTask.splitTaskPtr);
+                        //day.nextDay.removeTask(curTask.splitTaskPtr);
+                        // the curtask should be deleted and the curTask.splitTaskPtr should be merged in one
+                        curTask.splitTaskPtr.duration += curTask.duration;
+                        // P:TODO: is this correct?
+                        //curTask.splitTaskPtr = curTask;
                     }
-
-                    tasks.Add(curTask);
-                    hours -= curTask.duration;
+                    else
+                    {
+                        tasks.Add(curTask);
+                    }
+                    hours -= curTaskHours;
                     day.removeTask(curTask);
+
                 }
             }
         }
