@@ -50,11 +50,11 @@ public class Task
 
     public Task(string name, DateTime deadline, Type type, bool isSplit) : this(name, deadline, 0, type, isSplit){}
 
-    // TODO: Problem
-    public void splitTask(int[] hours, int index, Task task)
+    public void splitTask(int[] hours, int index, Task task, Day day)
     {
         task.duration = hours[0];
         task.isSplit = true;
+        // TODO: Shouldn't it be deadline.AddDay(1) ? 
         task.splitTaskPtr = new Task(name, deadline, hours[1], type, false);
     }
 

@@ -11,6 +11,7 @@ public class Day
     public int workingHoursInterval { get; set; }
     public int workingHours { get; set; }
     public Day nextDay { get; set; }
+    public Day prevDay { get; set; }
 
     public Day(DateTime date, List<Task> tasks, int workingHoursInterval, int workingHours)
     {
@@ -19,6 +20,7 @@ public class Day
         this.workingHoursInterval = workingHoursInterval;
         this.workingHours = workingHours;
         this.nextDay = null;
+        this.prevDay = null;
     }
 
     public int totalHoursTasks() {
