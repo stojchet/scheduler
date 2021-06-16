@@ -8,12 +8,14 @@ public class Day
     public DateTime date { get; set; }
     public List<Task> tasks { get; set; }
     // format xx:yy
-    public int workingHoursInterval { get; set; }
+    public (int, int) workingHoursInterval { get; set; }
     public int workingHours { get; set; }
     public Day nextDay { get; set; }
     public Day prevDay { get; set; }
 
-    public Day(DateTime date, List<Task> tasks, int workingHoursInterval, int workingHours)
+    public bool dir { get; set; }
+
+    public Day(DateTime date, List<Task> tasks, (int, int) workingHoursInterval, int workingHours)
     {
         this.date = date;
         this.tasks = tasks;
@@ -21,6 +23,30 @@ public class Day
         this.workingHours = workingHours;
         this.nextDay = null;
         this.prevDay = null;
+    }
+
+    public override bool Equals(Object obj)
+    {
+        if ((obj == null) || !this.GetType().Equals(obj.GetType()))
+        {
+            return false;
+        }
+        else
+        {
+            Day d = (Day)obj;
+            return d.date == date;
+        }
+    }
+
+    public override int GetHashCode()
+    {
+        long hash = 0;
+
+        foreach (char c in date.ToString())
+        {
+            hash = hash * 1000003 + c.GetHashCode();
+        }
+        return (int)hash;
     }
 
     public int totalHoursTasks() {

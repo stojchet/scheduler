@@ -50,6 +50,30 @@ public class Task
 
     public Task(string name, DateTime deadline, Type type, bool isSplit) : this(name, deadline, 0, type, isSplit){}
 
+    public override bool Equals(Object obj)
+    {
+        if ((obj == null) || !this.GetType().Equals(obj.GetType()))
+        {
+            return false;
+        }
+        else
+        {
+            Task t = (Task)obj;
+            return t.name == name;
+        }
+    }
+
+    public override int GetHashCode()
+    {
+        long hash = 0;
+
+        foreach (char c in name)
+        {
+            hash = hash * 1000003 + c.GetHashCode();
+        }
+        return (int) hash;
+    }
+
     public void splitTask(int[] hours, int index, Task task, Day day)
     {
         task.duration = hours[0];
