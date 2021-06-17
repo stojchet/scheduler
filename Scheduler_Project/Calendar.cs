@@ -302,7 +302,8 @@ public class Calendar
 
         List<Task> tasks = new List<Task>();
 
-        for (int i = day.tasks.Count - 1; i >= 0; --i)
+        // for loop notcorrect when indexDir is 0
+        for (int i = indexDir; i >= 0; --i)
         {
             if (day.tasks[i].type != Type.FIXED)
             {
@@ -328,7 +329,6 @@ public class Calendar
                     throw new NoSpaceForTaskExeption("There is no space to add the task, error occured during shifting the tasks", day, curTask, hours);
                 }
 
-                // add split tasks to "tasks" so that I can handle it during the exception
                 if (curTask.duration > hours)
                 {
                     int additionalHours = 0;
@@ -372,6 +372,44 @@ public class Calendar
         reorderCalendar(dirDay, dirDay.hoursToShift, next, null);
     }
 
+    void deleteReorderCalendar(Day day, int hours, Day returnPoint)
+    {
+        Day dirDay =  day.prevDay;
+
+        if (dirDay == null || dirDay.Equals(returnPoint)) { return; }
+
+        List<Task> tasks = new List<Task>();
+
+        for (int i = 0; i < day.tasks.Count; ++i)
+        {
+            if (hours == 0) { break; }
+
+            Task curTask = day.tasks[i];
+
+            if (curTask.duration > hours)
+            {
+                Task shiftSplitTask = new Task(curTask.name, curTask.deadline, hours, curTask.type, true);
+                shiftSplitTask.splitTaskPtr = curTask;
+                curTask.duration -= hours;
+
+                hours = 0;
+                tasks.Add(shiftSplitTask);
+            }
+            else
+            {
+                int curTaskHours = curTask.duration;
+                tasks.Add(curTask);
+                hours -= curTaskHours;
+                day.removeTask(curTask);
+
+            }
+        }
+
+        foreach (Task task in tasks) { dirDay.addTask(task, 0); }
+
+        deleteReorderCalendar(dirDay, dirDay.hoursToShift, null);
+    }
+
     private Day findTaskInDay(Task task)
     {
         foreach (Day day in days)
@@ -397,7 +435,7 @@ public class Calendar
             if (day.tasks[i] == task)
             {
                 day.removeTask(task);
-                reorderCalendar(days[days.Count - 1], task.duration, false, day);
+                deleteReorderCalendar(days[days.Count - 1], task.duration, day.prevDay);
             }
         }
     }
@@ -440,7 +478,7 @@ public class Calendar
                     else if (task.duration < int.Parse(parameter))
                     {
                         task.duration = int.Parse(parameter);
-                        reorderCalendar(day, int.Parse(parameter), false, day);
+                        reorderCalendar(day, int.Parse(parameter), true, day);
                     }
 
                     // Option 2
