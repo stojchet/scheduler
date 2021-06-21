@@ -12,6 +12,8 @@ public class Task
     Type _type;
     bool _isSplit;
     Task _splitTaskPtr;
+    // modify it when the user check the checkbox
+    bool done;
     public string name {
         get => _name;
         set { _name = value; }
@@ -97,5 +99,10 @@ public class Task
         }
         task.duration = hours[0];
 
+    }
+
+    public override string ToString()
+    {
+        return this.name + " " + new string('.', 20 - name.Length) + " " + duration + "h";
     }
 }

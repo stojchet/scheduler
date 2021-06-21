@@ -23,15 +23,22 @@ public class Calendar
         this.currentDate = DateTime.Now; // format dd.mm.yyyy hh:mm:ss
     }
 
+    private Calendar clone()
+    {
+        Calendar calendar;
+        // make a clone and in _addTask
+        return null;
+    }
+
     // TODO: Check the case when we add a task for today since this function will be returning 0
-    private int numberOfDaysInRange(DateTime startingDate, DateTime endDate) => (endDate.Date - startingDate.Date).Days + 1;
+    private static int numberOfDaysInRange(DateTime startingDate, DateTime endDate) => (endDate.Date - startingDate.Date).Days + 1;
 
     private bool isDateValid(DateTime startingDate, DateTime endDate) => numberOfDaysInRange(startingDate, endDate) > 0;
 
     private bool shouldAddDay(Task task) => days[days.Count - 1].hoursToShift * -1 < task.duration;
 
     // Make an indexer?
-    private Day getDayByDate(DateTime date)
+    public Day getDayByDate(DateTime date)
     {
         foreach(Day day in days)
         {
@@ -117,7 +124,7 @@ public class Calendar
         }
         else
         {
-            // remove task
+            // remove task - nothing
         }
     }
 
@@ -229,18 +236,12 @@ public class Calendar
         }
         catch (NoSpaceForTaskExeption exception)
         {
+            WriteLine("Exception");
             WriteLine(task.name);
+            print();
             Day day = findTaskInDay(task);
             day.removeTask(task);
-            deleteReorderCalendar(exception.day.nextDay, day.hoursToShift * -1, day.nextDay);
-            // from day in the addTask from when I thorow the exeption until the day that I have here from which I remove the task
-            /*
-             Options:
-                -Modify task
-                -Add hours to the day
-                -Delete task
-                -Add hours equally to each day from the current date up until the deadline of the task
-             */
+            deleteReorderCalendar(exception.day.nextDay, day.hoursToShift * -1, day);
         }
     }
 
@@ -262,10 +263,11 @@ public class Calendar
         }
         else
         {
-            for(int i = 0; i < numberOfDaysInRange(task.deadline, days[days.Count - 1].date) * -1 + 1; ++i)
+            for(int i = 0; i <= numberOfDaysInRange(task.deadline, days[days.Count - 1].date) * -1 + 1; ++i)
             {
                 Day newDay = new Day(days[days.Count - 1].date.AddDays(1), new List<Task>(), defaultWorkingHoursInterval, defaultWorkingHours);
                 days[days.Count - 1].nextDay = newDay;
+                newDay.prevDay = days[days.Count - 1];
                 days.Add(newDay);
             }
             day = getDayByDate(task.deadline);
@@ -295,6 +297,7 @@ public class Calendar
         if (hours < task.duration)
         {
             WriteLine("No space to add task");
+            validDays[validDays.Count - 1].addTask(task, validDays[validDays.Count - 1].tasks.Count);
             throw new NoSpaceForTaskExeption("There is no space to add the task which needs to be added as the last task in the calendar", d, task, hours - task.duration);
         }
     }
@@ -312,6 +315,7 @@ public class Calendar
                 if (numberOfDaysInRange(day.tasks[i].deadline, task.deadline) <= 0 && day.tasks[i].type != Type.FIXED)
                 {
                     day.addTask(task, i);
+                    // if there isn't enough space to add the task just don't add it -> similar to temp
                     if (day.isDayFull(0))
                     {
                         reorderCalendar(day, day.hoursToShift, true, null);
@@ -347,7 +351,8 @@ public class Calendar
     {
         Day dirDay = day.nextDay;
 
-        if (dirDay == null || dirDay.Equals(returnPoint)) { return; }
+        // dirDay.Equals(returnPoint)
+        if (dirDay == null || day.hoursToShift <= 0) { return; }
 
         List<Task> tasks = new List<Task>();
 
@@ -361,6 +366,7 @@ public class Calendar
 
                 if (!isDateValid(dirDay.date, curTask.deadline))
                 {
+                    foreach (Task task in tasks) { day.addTask(task, day.tasks.Count); }
                     throw new NoSpaceForTaskExeption("There is no space to add the task, error occured during shifting the tasks", day, curTask, hours);
                 }
 
@@ -386,8 +392,10 @@ public class Calendar
                 else
                 {
                     int curTaskHours = curTask.duration;
+                    // TODO: Problem
                     if (curTask.isSplit)
                     {
+
                         curTask.splitTaskPtr.duration += curTask.duration;
                     }
                     else
@@ -408,11 +416,15 @@ public class Calendar
         reorderCalendar(dirDay, dirDay.hoursToShift, next, null);
     }
 
+    // bool done which become truw when we reach the day from which we've removed the task i.e. the shift hours are <= 0
     void deleteReorderCalendar(Day day, int hours, Day returnPoint)
     {
+        int h = hours;
         Day dirDay =  day.prevDay;
 
-        if (dirDay == null || dirDay.Equals(returnPoint)) { return; }
+        // dirDay.Equals(returnPoint)
+        // TODO: Stop day i.e. base case || day.hoursToShift == 0
+        if (dirDay == null || day.Equals(returnPoint)) { return; }
 
         List<Task> tasks = new List<Task>();
         // for loop is retarded when I delete the element
@@ -426,35 +438,16 @@ public class Calendar
 
                 if (curTask.duration > hours)
                 {
-                    WriteLine(dirDay.tasks[dirDay.tasks.Count - 1]);
-                    // only the first element can be split
-                    if (dirDay.tasks[dirDay.tasks.Count - 1].isSplit && i == 0)
-                    {
-                        curTask.duration -= hours;
-                        dirDay.tasks[dirDay.tasks.Count - 1].duration += hours;
-                        tasks.Add(dirDay.tasks[dirDay.tasks.Count - 1]);
-                        dirDay.removeTask(dirDay.tasks[dirDay.tasks.Count - 1]);
-                    }
-                    else
-                    {
-                        Task shiftSplitTask = new Task(curTask.name, curTask.deadline, hours, curTask.type, true);
-                        shiftSplitTask.splitTaskPtr = curTask;
-                        curTask.duration -= hours;
+                    Task shiftSplitTask = new Task(curTask.name, curTask.deadline, hours, curTask.type, true);
+                    shiftSplitTask.splitTaskPtr = curTask;
+                    curTask.duration -= hours;
 
-                        tasks.Add(shiftSplitTask);
-                    }
-                    
+                    tasks.Add(shiftSplitTask);   
                     hours = 0;
                 }
                 else
                 {
                     int curTaskHours = curTask.duration;
-                    if (dirDay.tasks[dirDay.tasks.Count - 1].isSplit && i == 0)
-                    {
-                        dirDay.tasks[dirDay.tasks.Count - 1].mergeTasks(dirDay.tasks[dirDay.tasks.Count - 1], dirDay.tasks[dirDay.tasks.Count - 1].splitTaskPtr);
-                        curTask = dirDay.tasks[dirDay.tasks.Count - 1];
-                        dirDay.removeTask(dirDay.tasks[dirDay.tasks.Count - 1]);
-                    }
                     tasks.Add(curTask);
                     hours -= curTaskHours;
                     day.removeTask(curTask);
@@ -464,20 +457,22 @@ public class Calendar
         }
 
         // or should I just check here if the first task in tasks is split with the last task in dirDay and them just add the hours and isSplit and remove the from tasks and don't add it to dirDay again?
-        /*if (dirDay.tasks[dirDay.tasks.Count - 1].isSplit)
+        // changes are not saved in task2
+        if (dirDay.tasks.Count != 0 && dirDay.tasks[dirDay.tasks.Count - 1].isSplit)
         {
             dirDay.tasks[dirDay.tasks.Count - 1].isSplit = tasks[0].isSplit;
             dirDay.tasks[dirDay.tasks.Count - 1].splitTaskPtr = tasks[0].splitTaskPtr;
             dirDay.tasks[dirDay.tasks.Count - 1].duration += tasks[0].duration;
             tasks.RemoveAt(0);
-        }*/
+        }
 
         for (int i = 0; i < tasks.Count; ++i) 
         { 
             dirDay.addTask(tasks[i], dirDay.tasks.Count); 
         }
 
-        deleteReorderCalendar(dirDay, dirDay.hoursToShift, null);
+        //                            h
+        deleteReorderCalendar(dirDay, h, returnPoint);
     }
 
     private Day findTaskInDay(Task task)
@@ -499,26 +494,31 @@ public class Calendar
     // NOTE: Helper function until I make the interface
     public void deleteTask(Day day, Task task)
     {
-        // use findTaskInDay to find the day when you're given only the task
-        for (int i = 0; i < day.tasks.Count; ++i)
+        int additional = 0;
+        if (task.isSplit)
         {
-            if (day.tasks[i].Equals(task))
-            {
-                day.removeTask(task);
-                deleteReorderCalendar(days[days.Count - 1], task.duration, day.prevDay);
-            }
+            day.nextDay.removeTask(task.splitTaskPtr);
+            task.isSplit = false;
+            additional = task.splitTaskPtr.duration;
+            deleteReorderCalendar(days[days.Count - 1], task.splitTaskPtr.duration, day.nextDay);
         }
+
+        day.removeTask(task);
+        deleteReorderCalendar(days[days.Count - 1], task.duration, day);
     }
 
     public void deleteTaskRunHelper(Task task)
     {
-        foreach (Day day in days)
+        for (int i = 0; i < days.Count; ++i)
         {
-            for (int i = 0; i < day.tasks.Count; ++i)
+            Day day = days[i];
+            for (int j = 0; j < day.tasks.Count; ++j)
             {
-                if (day.tasks[i].Equals(task))
+                if (day.tasks[j].Equals(task))
                 {
+                    task = day.tasks[j];
                     deleteTask(day, task);
+                    return;
                 }
             }
         }
@@ -552,6 +552,21 @@ public class Calendar
     void updateFile()
     {
 
+    }
+
+    // Function needed in CalendarView
+
+    public static bool isDateValid(string date)
+    {
+        DateTime val;
+        if (DateTime.TryParse(date, out val))
+        {
+            if (numberOfDaysInRange(DateTime.Now, val) > 0)
+            {
+                return true;
+            }
+        }
+        return false;
     }
 
     public void print()
