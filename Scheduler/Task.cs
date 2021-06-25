@@ -6,38 +6,13 @@ public enum Type {FIXED, NORMAL}
 [Serializable]
 public class Task
 {
-    string _name;
-    DateTime _deadline;
-    int _duration;
-    Type _type;
-    bool _isSplit;
-    Task _splitTaskPtr;
-    // modify it when the user check the checkbox
-    bool done;
-    public string name {
-        get => _name;
-        set { _name = value; }
-    }
-    public DateTime deadline {
-        get => _deadline; 
-        set { _deadline = value; }
-    } // format dd.mm.yyyy hh:mm:ss
-    public int duration {
-        get => _duration; 
-        set { _duration = value; }
-    }
-    public Type type {
-        get => _type; 
-        set { _type = value; }
-    }
-    public bool isSplit {
-        get => _isSplit; 
-        set { _isSplit = value; }
-    }
-    public Task splitTaskPtr {
-        get => _splitTaskPtr; 
-        set { _splitTaskPtr = value; }
-    }
+    public string name { get; set; }
+    
+    public DateTime deadline { get; set; } // format dd.mm.yyyy hh:mm:ss
+    public int duration { get; set; }
+    public Type type { get; set; }
+    public bool isSplit { get; set; }
+    public Task splitTaskPtr { get; set; }
 
 
     public Task(string name, DateTime deadline, int duration, Type type, bool isSplit)

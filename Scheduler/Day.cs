@@ -13,8 +13,6 @@ public class Day
     public Day nextDay { get; set; }
     public Day prevDay { get; set; }
 
-    public bool dir { get; set; }
-
     public Day(DateTime date, List<Task> tasks, (int, int) workingHoursInterval, int workingHours)
     {
         this.date = date;

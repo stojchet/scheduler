@@ -256,10 +256,22 @@ namespace Scheduler.Forms
                 }
                 else
                 {
+                    bool reorder = false;
+
+                    if(CurrentTask.deadline != this.DatePickerDeadline.GetDate() || CurrentTask.duration != int.Parse(this.Duration.Text))
+                    {
+                        reorder = true;
+                    }
+
                     CurrentTask.name = this.TaskName.Text;
                     CurrentTask.deadline = this.DatePickerDeadline.GetDate();
                     CurrentTask.duration = int.Parse(this.Duration.Text);
                     CurrentTask.type = this.TaskTypeNormal.Checked ? Type.NORMAL : Type.FIXED;
+
+                    if(reorder)
+                    {
+                        CallerAction?.Invoke(CurrentTask);
+                    }
                 }
 
                 this.Close();
@@ -279,10 +291,11 @@ namespace Scheduler.Forms
             this.FormButton.Text = "Create";
         }
 
-        public TaskView(Task task)
+        public TaskView(Task task, TaskAction reorderAction)
         {
             InitializeComponent();
             CurrentTask = task;
+            CallerAction = reorderAction;
             this.TaskName.Text = task.name;
             this.DatePickerDeadline.SetDate(task.deadline);
             this.Duration.Text = task.duration.ToString();

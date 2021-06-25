@@ -6,7 +6,6 @@ using static System.Console;
 public class Calendar
 {
     public List<Day> days { get; set; }
-    // make an indexer for tasks ind day
     public DateTime currentDate { get; set; }
     public (int, int) defaultWorkingHoursInterval { get; set; }
     public int defaultWorkingHours { get; set; }
@@ -23,21 +22,14 @@ public class Calendar
         this.currentDate = DateTime.Now; // format dd.mm.yyyy hh:mm:ss
     }
 
-    private Calendar clone()
-    {
-        Calendar calendar;
-        // make a clone and in _addTask
-        return null;
-    }
+    /* ----------------------------- Utilities ------------------------------ */
 
-    // TODO: Check the case when we add a task for today since this function will be returning 0
     private static int numberOfDaysInRange(DateTime startingDate, DateTime endDate) => (endDate.Date - startingDate.Date).Days + 1;
 
     private bool isDateValid(DateTime startingDate, DateTime endDate) => numberOfDaysInRange(startingDate, endDate) > 0;
 
     private bool shouldAddDay(Task task) => days[days.Count - 1].hoursToShift * -1 < task.duration;
 
-    // Make an indexer?
     public Day getDayByDate(DateTime date)
     {
         foreach(Day day in days)
@@ -51,11 +43,23 @@ public class Calendar
         return null;
     }
 
+    public static bool isDateValid(string date)
+    {
+        DateTime val;
+        if (DateTime.TryParse(date, out val))
+        {
+            if (numberOfDaysInRange(DateTime.Now, val) > 0)
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+
     public List<Day> getRangeOfDaysForTask(Task task)
     {
         List<Day> validDays = new List<Day>();
 
-        // TODO: don't add just one day, but add days according to the duration of the task
         Day newDay;
         if (days.Count == 0)
         {
@@ -92,190 +96,9 @@ public class Calendar
         return validDays;
     }
 
-    public void handleException(Day day, Task task)
-    {
-        WriteLine("There is no space to add the task with there parameters and these working hours. Do you want make some changes to the task?");
-        if (ReadLine() == "Y")
-        {
-            WriteLine("Which parameters do you wish to change?" +
-                "1. Working hours -> automatically more working hours will be added from today till the task's deadline so that you have enough time to finish it" +
-                "2. The deadline of the task" +
-                "3. The duration of the task");
+    /* ---------------------------------- Exception Handling ----------------------------------- */
 
-            string answer = ReadLine();
-            if (answer == "1")
-            {
-                // make a function that will take care of this.
-            }
-            else if (answer == "2")
-            {
-                WriteLine("Enter new deadline");
-                modifyTask(day, task, "deadline", ReadLine());
-            }
-            else if (answer == "3")
-            {
-                WriteLine("Enter new duration");
-                modifyTask(day, task, "duration", ReadLine());
-            }
-            else
-            {
-                WriteLine("Wrong input");
-            }
-        }
-        else
-        {
-            // remove task - nothing
-        }
-    }
-
-    // we add tasks to day and remove them from nextDay
-    public List<Task> updateDays(Day day, int hours)
-    {
-        Day nextDay = day.nextDay;
-        List<Task> tasks = new List<Task>();
-
-        while (nextDay != null)
-        {
-            if(day.tasks.Count == 0)
-            {
-                nextDay = nextDay.nextDay;
-            }
-
-            // from nextDay I remove and add tasks to day
-            for(int i = 0; i < nextDay.tasks.Count; ++i)
-            {
-                if(hours == 0){ break; }
-
-                Task curTask = nextDay.tasks[i];
-
-                // take care of exception if date is not valid
-
-                if (curTask.duration > hours)
-                {
-                    int additionalHours = 0;
-
-                    if (curTask.isSplit)
-                    {
-                        additionalHours = curTask.splitTaskPtr.duration;
-                        // TODO: take care of the case when the task would be split into multiple days/tasks
-                        nextDay.nextDay.removeTask(curTask.splitTaskPtr);
-                        curTask.mergeTasks(curTask, curTask.splitTaskPtr);
-                    }
-
-                    int[] splitHours = { curTask.duration - hours - additionalHours, hours + additionalHours };
-                    curTask.splitTask(splitHours, 0, curTask, day);
-
-                    hours = 0;
-                    // day.nextDay.addTask(curTask.splitTaskPtr, 0);
-                    // add currentTask to day and currentTask.splitTaskPtr to nextDay
-                    tasks.Add(curTask);
-                    nextDay.removeTask(curTask);
-                    nextDay.addTask(curTask.splitTaskPtr, 0);
-                }
-                else
-                {
-                    int curTaskHours = curTask.duration;
-                    if (curTask.isSplit)
-                    {
-                        curTask.splitTaskPtr.duration += curTask.duration;
-                        nextDay.nextDay.removeTask(curTask.splitTaskPtr);
-                        // TODO: Get back to the above case
-                    }
-                    else
-                    {
-                        tasks.Add(curTask);
-                        //day.nextDay.addTask(curTask, 0);
-                    }
-                    hours -= curTaskHours;
-                    nextDay.removeTask(curTask);
-                }
-
-            }
-        }
-        // delete empty days
-        return tasks;
-    }
-
-    public void modifyWorkingHours(int hours)
-    {
-        int hoursPerDay = hours / days.Count;
-        // make the oneMore give more hours as we're approaching the dealine?
-        // make oneMore strive to gove equal working hours if some day has less working hours than some other day
-        int oneMore = hours - hoursPerDay * days.Count - 1; // to start counter i from 0
-
-        for (int i = 0; i < days.Count; ++i)
-        {
-            days[i].workingHours += hoursPerDay;
-            if (i <= oneMore)
-            {
-                days[i].workingHours++;
-            }
-        }
-
-        // call deleteReorderCalendar and send add +hours to the function's hours parameter
-        // I need deleteReorderCalendar but in the opposite direction
-        // now reorganize the tasks
-        // use reorderCalendar somehow?
-        // should iterate though the days resusivelt
-        // it should start iterating through the days from days[0] and add x hours of tasks then as we iterate through the days we add i * x amount of tasks to the days
-        // and if we gat to a point when for ex 16 hours need to be shifter we must recursively access the days to get the tasks
-    }
-
-    public void addTask(Task task)
-    {
-        try
-        {
-            if(task.type == Type.NORMAL)
-            {
-                _addTask(task);
-            }
-            else if(task.type == Type.FIXED)
-            {
-                addFixedTask(task);
-            }
-        }
-        catch (NoSpaceForTaskExeption exception)
-        {
-            WriteLine("Exception");
-            WriteLine(task.name);
-            print();
-            Day day = findTaskInDay(task);
-            day.removeTask(task);
-            deleteReorderCalendar(exception.day.nextDay, day.hoursToShift * -1, day);
-        }
-    }
-
-    // exeption handling
-    // 1. Task is larger than working hours allowed
-    // 2. There already are some fixed tasks in the day and hence there is no space to add the task
-    public void addFixedTask(Task task)
-    {
-        if (days.Count == 0)
-        {
-            days.Add(new Day(currentDate, new List<Task>(), defaultWorkingHoursInterval, defaultWorkingHours));
-        }
-
-        Day day;
-        if (numberOfDaysInRange(task.deadline, days[days.Count - 1].date) > 0){
-            day = getDayByDate(task.deadline);
-            day.addTask(task, 0);
-            reorderCalendar(day, task.duration, true, null);
-        }
-        else
-        {
-            for(int i = 0; i <= numberOfDaysInRange(task.deadline, days[days.Count - 1].date) * -1 + 1; ++i)
-            {
-                Day newDay = new Day(days[days.Count - 1].date.AddDays(1), new List<Task>(), defaultWorkingHoursInterval, defaultWorkingHours);
-                days[days.Count - 1].nextDay = newDay;
-                newDay.prevDay = days[days.Count - 1];
-                days.Add(newDay);
-            }
-            day = getDayByDate(task.deadline);
-            day.addTask(task, 0);
-        }
-    }
-
-    public void temp(Task task, List<Day> validDays, ref Day d)
+    public void errorCheck(Task task, List<Day> validDays, ref Day d)
     {
         for (int i = 0; i < validDays.Count; ++i)
         {
@@ -302,20 +125,67 @@ public class Calendar
         }
     }
 
+    /* ------------------------------- Add Task --------------------------------- */
+
+    public void addTask(Task task)
+    {
+        try
+        {
+            if(task.type == Type.NORMAL)
+            {
+                _addTask(task);
+            }
+            else if(task.type == Type.FIXED)
+            {
+                addFixedTask(task);
+            }
+        }
+        catch (NoSpaceForTaskExeption exception)
+        {
+            Day day = getDayByDate(task.deadline);
+            day.removeTask(task);
+            deleteReorderCalendar(exception.day.nextDay, day.hoursToShift * -1, day);
+        }
+    }
+
+    public void addFixedTask(Task task)
+    {
+        if (days.Count == 0)
+        {
+            days.Add(new Day(currentDate, new List<Task>(), defaultWorkingHoursInterval, defaultWorkingHours));
+        }
+
+        Day day;
+        if (numberOfDaysInRange(task.deadline, days[days.Count - 1].date) > 0){
+            day = getDayByDate(task.deadline);
+            day.addTask(task, 0);
+            reorderCalendar(day, task.duration, true, null);
+        }
+        else
+        {
+            while(numberOfDaysInRange(task.deadline, days[days.Count - 1].date) <= 0)
+            {
+                Day newDay = new Day(days[days.Count - 1].date.AddDays(1), new List<Task>(), defaultWorkingHoursInterval, defaultWorkingHours);
+                days[days.Count - 1].nextDay = newDay;
+                newDay.prevDay = days[days.Count - 1];
+                days.Add(newDay);
+            }
+            day = getDayByDate(task.deadline);
+            day.addTask(task, 0);
+        }
+    }
+
     public void _addTask(Task task)
     {
         List<Day> validDays = getRangeOfDaysForTask(task);
 
-        // Insert task
         foreach (Day day in validDays)
         {
-            //if (day.tasks.Count != 0) {
             for (int i = 0; i < day.tasks.Count; ++i)
             {
                 if (numberOfDaysInRange(day.tasks[i].deadline, task.deadline) <= 0 && day.tasks[i].type != Type.FIXED)
                 {
                     day.addTask(task, i);
-                    // if there isn't enough space to add the task just don't add it -> similar to temp
                     if (day.isDayFull(0))
                     {
                         reorderCalendar(day, day.hoursToShift, true, null);
@@ -323,17 +193,11 @@ public class Calendar
                     return;
                 }
             }
-            //}
-            /*else {
-                day.addTask(task, 0);
-                return;
-            }*/
         }
 
-        // Add task at the end
         Day d = validDays[0];
 
-        temp(task, validDays, ref d);
+        errorCheck(task, validDays, ref d);
 
         d.addTask(task, d.tasks.Count);
         if (d.isDayFull(0))
@@ -342,16 +206,10 @@ public class Calendar
         }
     }
 
-    // TODO: Check every implementation of reorderCalendar and check if the next and returnPoint parameters are sent correctly
-    // TODO: Split reorderCalendar into two functions: one that will return a list of tasks given hours and day
-    // and one that will do the work of reordering the calendar
-    // when reordering the calendar take care of the dates and if you are sending a task to a date 
-    // when the deadline would be finished, then send an error
-    void reorderCalendar(Day day, int hours, bool next, Day returnPoint)
+    private void reorderCalendar(Day day, int hours, bool next, Day returnPoint)
     {
         Day dirDay = day.nextDay;
 
-        // dirDay.Equals(returnPoint)
         if (dirDay == null || day.hoursToShift <= 0) { return; }
 
         List<Task> tasks = new List<Task>();
@@ -377,7 +235,6 @@ public class Calendar
                     if (curTask.isSplit)
                     {
                         additionalHours = curTask.splitTaskPtr.duration;
-                        // TODO: take care of the case when the task would be split into multiple days/tasks
                         dirDay.removeTask(curTask.splitTaskPtr);
                         curTask.mergeTasks(curTask, curTask.splitTaskPtr);
                     }
@@ -386,22 +243,19 @@ public class Calendar
                     curTask.splitTask(splitHours, 0, curTask, day);
 
                     hours = 0;
-                    //day.nextDay.addTask(curTask.splitTaskPtr, 0);
                     tasks.Add(curTask.splitTaskPtr);
                 }
                 else
                 {
                     int curTaskHours = curTask.duration;
-                    // TODO: Problem
                     if (curTask.isSplit)
                     {
-
-                        curTask.splitTaskPtr.duration += curTask.duration;
+                        dirDay.removeTask(curTask.splitTaskPtr);
+                        curTask.mergeTasks(curTask, curTask.splitTaskPtr);
                     }
                     else
                     {
                         tasks.Add(curTask);
-                        //day.nextDay.addTask(curTask, 0);
                     }
                     hours -= curTaskHours;
                     day.removeTask(curTask);
@@ -410,24 +264,21 @@ public class Calendar
             }
         }
 
-        // TODO: When the task is split merge it
         foreach (Task task in tasks) { dirDay.addTask(task, 0); }
 
         reorderCalendar(dirDay, dirDay.hoursToShift, next, null);
     }
 
-    // bool done which become truw when we reach the day from which we've removed the task i.e. the shift hours are <= 0
-    void deleteReorderCalendar(Day day, int hours, Day returnPoint)
+    /* ------------------------------- Delete Task ----------------------------------- */
+
+    private void deleteReorderCalendar(Day day, int hours, Day returnPoint)
     {
         int h = hours;
         Day dirDay =  day.prevDay;
 
-        // dirDay.Equals(returnPoint)
-        // TODO: Stop day i.e. base case || day.hoursToShift == 0
         if (dirDay == null || day.Equals(returnPoint)) { return; }
 
         List<Task> tasks = new List<Task>();
-        // for loop is retarded when I delete the element
         for (int i = 0; i < day.tasks.Count; ++i)
         {
             if (day.tasks[i].type != Type.FIXED)
@@ -456,8 +307,6 @@ public class Calendar
             }
         }
 
-        // or should I just check here if the first task in tasks is split with the last task in dirDay and them just add the hours and isSplit and remove the from tasks and don't add it to dirDay again?
-        // changes are not saved in task2
         if (dirDay.tasks.Count != 0 && dirDay.tasks[dirDay.tasks.Count - 1].isSplit)
         {
             dirDay.tasks[dirDay.tasks.Count - 1].isSplit = tasks[0].isSplit;
@@ -471,114 +320,19 @@ public class Calendar
             dirDay.addTask(tasks[i], dirDay.tasks.Count); 
         }
 
-        //                            h
         deleteReorderCalendar(dirDay, h, returnPoint);
     }
 
-    private Day findTaskInDay(Task task)
-    {
-        foreach (Day day in days)
-        {
-            for (int i = 0; i < day.tasks.Count; ++i)
-            {
-                if (day.tasks[i].Equals(task))
-                {
-                    return day;
-                }
-            }
-        }
-        WriteLine("Task doesn't exist");
-        return null;
-    }
-
-    // NOTE: Helper function until I make the interface
     public void deleteTask(Day day, Task task)
     {
-        int additional = 0;
         if (task.isSplit)
         {
             day.nextDay.removeTask(task.splitTaskPtr);
             task.isSplit = false;
-            additional = task.splitTaskPtr.duration;
             deleteReorderCalendar(days[days.Count - 1], task.splitTaskPtr.duration, day.nextDay);
         }
 
         day.removeTask(task);
         deleteReorderCalendar(days[days.Count - 1], task.duration, day);
-    }
-
-    public void deleteTaskRunHelper(Task task)
-    {
-        for (int i = 0; i < days.Count; ++i)
-        {
-            Day day = days[i];
-            for (int j = 0; j < day.tasks.Count; ++j)
-            {
-                if (day.tasks[j].Equals(task))
-                {
-                    task = day.tasks[j];
-                    deleteTask(day, task);
-                    return;
-                }
-            }
-        }
-    }
-
-    public void modifyTask(Day day, Task task, string parameterType, string parameter)
-    {
-        for (int i = 0; i < day.tasks.Count; ++i)
-        {
-            if (day.tasks[i].Equals(task))
-            {
-                if (parameterType == "deadline" || parameterType == "duration")
-                {
-                    day.removeTask(task);
-                    task.deadline = DateTime.Parse(parameter);
-                    addTask(task);
-                }
-                else if (parameterType == "name")
-                {
-                    task.name = parameter;
-                }
-            }
-        }
-    }
-
-    void loadFile()
-    {
-
-    }
-
-    void updateFile()
-    {
-
-    }
-
-    // Function needed in CalendarView
-
-    public static bool isDateValid(string date)
-    {
-        DateTime val;
-        if (DateTime.TryParse(date, out val))
-        {
-            if (numberOfDaysInRange(DateTime.Now, val) > 0)
-            {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    public void print()
-    {
-        foreach (Day day in days)
-        {
-            WriteLine(day.date.ToString());
-
-            foreach (Task task in day.tasks)
-            {
-                WriteLine($"\tName: {task.name} Deadline: {task.deadline} Duration: {task.duration}");
-            }
-        }
     }
 }

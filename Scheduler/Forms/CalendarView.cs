@@ -18,7 +18,6 @@ namespace Scheduler.Forms
         private Button AddTaskButton;
 
         /* ------------------------------ Private Variables ------------------------------*/
-        private Calendar CurrentCalendar;
         private Day CurrentDay;
         private ContextMenuStrip ItemMenuStrip;
 
@@ -206,6 +205,7 @@ namespace Scheduler.Forms
             this.ShowIcon = false;
             this.StartPosition = FormStartPosition.CenterScreen;
             this.Text = "Calendar View";
+            this.FormClosing += CalendarView_FormClosing;
 
 
             this.TitlePanel.ResumeLayout(false);
@@ -217,11 +217,16 @@ namespace Scheduler.Forms
             this.ResumeLayout(false);
         }
 
+        private void CalendarView_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            Settings.Save();
+        }
+
         private void PerformSearch(DateTime date)
         {
             if (Calendar.isDateValid(date.ToShortDateString()))
             {
-                CurrentDay = CurrentCalendar.getDayByDate(date);
+                CurrentDay = Settings.MyCalendar.getDayByDate(date);
                 this.CurrentDateLabel.Text = date.ToShortDateString();
                 LoadTasks();
             }
@@ -235,7 +240,7 @@ namespace Scheduler.Forms
         private void AddTaskButton_Click(object sender, EventArgs e)
         {
             TaskView createTask = new TaskView((t) => {
-                CurrentCalendar.addTask(t);
+                Settings.MyCalendar.addTask(t);
             });
             createTask.ShowDialog();
             LoadTasks();
@@ -266,20 +271,20 @@ namespace Scheduler.Forms
             this.ItemMenuStrip = new ContextMenuStrip();
 
             this.ItemMenuStrip.Items.Add("Modify", null, (sender, e) => {
-                TaskView view = new TaskView((Task)TaskList.SelectedItem);
+                TaskView view = new TaskView((Task)TaskList.SelectedItem, (t) => {
+                    this.CurrentDay.removeTask(t);
+                    Settings.MyCalendar.addTask(t);
+                });
                 view.ShowDialog();
                 LoadTasks();
             });
 
             this.ItemMenuStrip.Items.Add("Delete", null, (sender, e) => {
-                CurrentCalendar.deleteTask(CurrentDay, (Task)TaskList.SelectedItem);
+                Settings.MyCalendar.deleteTask(CurrentDay, (Task)TaskList.SelectedItem);
                 LoadTasks();
             });
 
             InitializeComponent();
-            
-            this.CurrentCalendar = new Calendar();
-            this.CurrentCalendar.defaultWorkingHours = 12;
             PerformSearch(DateTime.Now);
         }
     }
