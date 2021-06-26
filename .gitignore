@@ -5,6 +5,10 @@
 
 # My Specific
 instructions.txt
+Properties/
+App.config
+*.csproj
+*.sln
 
 # User-specific files
 *.rsuser
