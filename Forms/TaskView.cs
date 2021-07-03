@@ -26,6 +26,7 @@ namespace Scheduler.Forms
         /* ------------------------------ Private Variables ------------------------------*/
         private TaskAction CallerAction;
         private Task CurrentTask = null;
+        private bool close = true;
 
         /* ------------------------------ Private Methods ------------------------------*/
         private void InitializeComponent()
@@ -256,9 +257,9 @@ namespace Scheduler.Forms
                 }
                 else
                 {
-                    bool reorder = false;
+                    bool reorder = true;
 
-                    if(CurrentTask.deadline != this.DatePickerDeadline.GetDate() || CurrentTask.duration != int.Parse(this.Duration.Text))
+                    if (CurrentTask.deadline != this.DatePickerDeadline.GetDate() || CurrentTask.duration != int.Parse(this.Duration.Text) || CurrentTask.type != (this.TaskTypeNormal.Checked ? Type.NORMAL : Type.FIXED))
                     {
                         reorder = true;
                     }
@@ -268,13 +269,13 @@ namespace Scheduler.Forms
                     CurrentTask.duration = int.Parse(this.Duration.Text);
                     CurrentTask.type = this.TaskTypeNormal.Checked ? Type.NORMAL : Type.FIXED;
 
-                    if(reorder)
+                    if (reorder)
                     {
                         CallerAction?.Invoke(CurrentTask);
                     }
                 }
 
-                this.Close();
+                (close ? (Action)(() => this.Close()) : () => close = true)();
             }
             else
             {
@@ -282,25 +283,35 @@ namespace Scheduler.Forms
             }
         }
 
+        private void showErrorInTaskMessage()
+        {
+            MessageBox.Show("No space to add task.");
+            close = false;
+        }
+
         /* ------------------------------ Constructors ------------------------------*/
-        public TaskView(TaskAction createTaskAction)
+        public TaskView()
         {
             InitializeComponent();
+            Settings.MyCalendar.ErrorInTaskParameters += showErrorInTaskMessage;
+        }
+
+        public TaskView(TaskAction createTaskAction) : this()
+        {
             CallerAction = createTaskAction;
             this.TitleLabel.Text = "Create Task";
             this.FormButton.Text = "Create";
         }
 
-        public TaskView(Task task, TaskAction reorderAction)
+        public TaskView(Task task, TaskAction reorderAction) : this()
         {
-            InitializeComponent();
             CurrentTask = task;
             CallerAction = reorderAction;
             this.TaskName.Text = task.name;
             this.DatePickerDeadline.SetDate(task.deadline);
             this.Duration.Text = task.duration.ToString();
-            
-            if(task.type == Type.NORMAL)
+
+            if (task.type == Type.NORMAL)
             {
                 this.TaskTypeNormal.Checked = true;
             }

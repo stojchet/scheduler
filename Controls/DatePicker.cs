@@ -18,69 +18,65 @@ namespace Scheduler.Controls
         /* ------------------------------ Private Methods ------------------------------*/
         private void InitializeComponent()
         {
-            this.day = new HintTextBox();
-            this.month = new HintTextBox();
-            this.year = new HintTextBox();
-
+            this.day = new Scheduler.Controls.HintTextBox();
+            this.month = new Scheduler.Controls.HintTextBox();
+            this.year = new Scheduler.Controls.HintTextBox();
             this.SuspendLayout();
-
             // 
             // day
             // 
             this.day.ForeColor = System.Drawing.Color.DarkGray;
             this.day.Hint = "dd";
-            this.day.Location = new System.Drawing.Point(5, 5);
-            this.day.Margin = new Padding(5);
+            this.day.Location = new System.Drawing.Point(6, 6);
+            this.day.Margin = new System.Windows.Forms.Padding(6, 6, 6, 6);
             this.day.MaxLength = 2;
             this.day.Name = "day";
-            this.day.Size = new System.Drawing.Size(35, 29);
+            this.day.Size = new System.Drawing.Size(43, 34);
             this.day.TabIndex = 0;
             this.day.Text = "dd";
-            this.day.TextAlign = HorizontalAlignment.Center;
-
+            this.day.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             // 
             // month
             // 
             this.month.ForeColor = System.Drawing.Color.DarkGray;
             this.month.Hint = "mm";
-            this.month.Location = new System.Drawing.Point(50, 5);
-            this.month.Margin = new Padding(5);
+            this.month.Location = new System.Drawing.Point(62, 6);
+            this.month.Margin = new System.Windows.Forms.Padding(6, 6, 6, 6);
             this.month.MaxLength = 2;
             this.month.Name = "month";
-            this.month.Size = new System.Drawing.Size(35, 29);
+            this.month.Size = new System.Drawing.Size(43, 34);
             this.month.TabIndex = 1;
             this.month.Text = "mm";
-            this.month.TextAlign = HorizontalAlignment.Center;
-
+            this.month.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             // 
             // year
             // 
             this.year.ForeColor = System.Drawing.Color.DarkGray;
             this.year.Hint = "yyyy";
-            this.year.Location = new System.Drawing.Point(95, 5);
-            this.year.Margin = new Padding(5);
+            this.year.Location = new System.Drawing.Point(119, 6);
+            this.year.Margin = new System.Windows.Forms.Padding(6, 6, 6, 6);
             this.year.MaxLength = 4;
             this.year.Name = "year";
-            this.year.Size = new System.Drawing.Size(45, 29);
+            this.year.Size = new System.Drawing.Size(55, 34);
             this.year.TabIndex = 2;
             this.year.Text = "yyyy";
-            this.year.TextAlign = HorizontalAlignment.Center;
-
+            this.year.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             // 
             // DatePicker
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
-            this.AutoScaleMode = AutoScaleMode.Dpi;
+            this.AutoScaleDimensions = new System.Drawing.SizeF(120F, 120F);
+            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
             this.BackColor = System.Drawing.Color.Transparent;
             this.Controls.Add(this.year);
             this.Controls.Add(this.month);
             this.Controls.Add(this.day);
-            this.Font = new System.Drawing.Font("Segoe UI", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
-            this.Margin = new Padding(0);
+            this.Font = new System.Drawing.Font("Segoe UI", 12F);
+            this.Margin = new System.Windows.Forms.Padding(0);
             this.Name = "DatePicker";
-            this.Size = new System.Drawing.Size(147, 40);
+            this.Size = new System.Drawing.Size(184, 50);
+            this.ResumeLayout(false);
+            this.PerformLayout();
 
-            this.ResumeLayout();
         }
 
         private void HintTextBox_KeyPress(object sender, KeyPressEventArgs e)

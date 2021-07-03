@@ -36,16 +36,7 @@ public class Day
         }
     }
 
-    public override int GetHashCode()
-    {
-        long hash = 0;
-
-        foreach (char c in date.ToString())
-        {
-            hash = hash * 1000003 + c.GetHashCode();
-        }
-        return (int)hash;
-    }
+    public override int GetHashCode() => date.GetHashCode();
 
     public int totalHoursTasks() {
         int totalHours = 0;

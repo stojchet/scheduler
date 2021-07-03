@@ -40,16 +40,7 @@ public class Task
         }
     }
 
-    public override int GetHashCode()
-    {
-        long hash = 0;
-
-        foreach (char c in name)
-        {
-            hash = hash * 1000003 + c.GetHashCode();
-        }
-        return (int) hash;
-    }
+    public override int GetHashCode() => name.GetHashCode();
 
     public void splitTask(int[] hours, int index, Task task, Day day)
     {
@@ -73,7 +64,6 @@ public class Task
             //if(task.duration)
         }
         task.duration = hours[0];
-
     }
 
     public override string ToString()

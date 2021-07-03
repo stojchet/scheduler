@@ -10,6 +10,8 @@ public class Calendar
     public (int, int) defaultWorkingHoursInterval { get; set; }
     public int defaultWorkingHours { get; set; }
 
+    public delegate void ErrorNotify();
+
     public Calendar()
     {
         this.days = new List<Day>();
@@ -39,7 +41,21 @@ public class Calendar
                 return day;
             }
         }
-        WriteLine("Day has not been added -> check for error");
+        return null;
+    }
+
+    public Day findTaskInDay(Task task)
+    {
+        foreach(Day day in days)
+        {
+            foreach(Task t in day.tasks)
+            {
+                if (t.Equals(task))
+                {
+                    return day;
+                }
+            }
+        }
         return null;
     }
 
@@ -79,22 +95,21 @@ public class Calendar
 
         int numberOfValidDaysInRange = numberOfDaysInRange(currentDate, task.deadline);
 
-        if (numberOfValidDaysInRange == 0)
-        {
-            WriteLine("The date is not valid!");
-        }
-
+        // start from current date
+        int startIndex = numberOfDaysInRange(days[0].date, currentDate) - 1;
         for (int i = 0; i < numberOfValidDaysInRange; ++i)
         {
             if (days.Count <= i)
             {
                 break;
             }
-            validDays.Add(days[i]);
+            validDays.Add(days[startIndex + i]);
         }
 
         return validDays;
     }
+
+    public event ErrorNotify ErrorInTaskParameters; 
 
     /* ---------------------------------- Exception Handling ----------------------------------- */
 
@@ -119,7 +134,6 @@ public class Calendar
 
         if (hours < task.duration)
         {
-            WriteLine("No space to add task");
             validDays[validDays.Count - 1].addTask(task, validDays[validDays.Count - 1].tasks.Count);
             throw new NoSpaceForTaskExeption("There is no space to add the task which needs to be added as the last task in the calendar", d, task, hours - task.duration);
         }
@@ -145,6 +159,8 @@ public class Calendar
             Day day = getDayByDate(task.deadline);
             day.removeTask(task);
             deleteReorderCalendar(exception.day.nextDay, day.hoursToShift * -1, day);
+            ErrorInTaskParameters.Invoke();
+            // notify calendar view about exeption and show error message
         }
     }
 
@@ -325,14 +341,24 @@ public class Calendar
 
     public void deleteTask(Day day, Task task)
     {
+        int hours = 0;
         if (task.isSplit)
         {
+            hours += task.splitTaskPtr.duration;
             day.nextDay.removeTask(task.splitTaskPtr);
             task.isSplit = false;
             deleteReorderCalendar(days[days.Count - 1], task.splitTaskPtr.duration, day.nextDay);
         }
 
+        if (day.prevDay != null && day.prevDay.tasks.Count != 0 && day.prevDay.tasks[day.prevDay.tasks.Count - 1].isSplit)
+        {
+            hours += day.prevDay.tasks[day.prevDay.tasks.Count - 1].duration;
+            deleteTask(day.prevDay, day.prevDay.tasks[day.prevDay.tasks.Count - 1]);
+        }
+
+        hours += task.duration;
         day.removeTask(task);
         deleteReorderCalendar(days[days.Count - 1], task.duration, day);
+        task.duration = hours;
     }
 }

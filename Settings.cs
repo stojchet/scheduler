@@ -1,5 +1,6 @@
 ﻿using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
+using System;
 
 public static class Settings
 {
@@ -10,15 +11,19 @@ public static class Settings
         if (File.Exists("data.bin"))
         {
             FileStream stream = new FileStream("data.bin", FileMode.Open);
+            BinaryFormatter formatter = new BinaryFormatter();
 
             try
             {
-                BinaryFormatter formatter = new BinaryFormatter();
                 ProgramData data = (ProgramData)formatter.Deserialize(stream);
                 Settings.MyCalendar = data.MyCalendar;
+                Settings.MyCalendar.currentDate = DateTime.Now;
             }
-            catch (System.Exception)
+            catch (Exception)
             {
+                Settings.MyCalendar = new Calendar();
+                Settings.MyCalendar.defaultWorkingHours = 12;
+                Console.WriteLine("Error: Cannot properly parse data!");
             }
             finally
             {
@@ -38,17 +43,8 @@ public static class Settings
         data.MyCalendar = Settings.MyCalendar;
         FileStream stream = new FileStream("data.bin", FileMode.Create);
 
-        try
-        {
-            BinaryFormatter formatter = new BinaryFormatter();
-            formatter.Serialize(stream, data);
-        }
-        catch(System.Exception)
-        {
-        }
-        finally
-        {
-            stream.Close();
-        }
+        BinaryFormatter formatter = new BinaryFormatter();
+        formatter.Serialize(stream, data);
+        stream.Close();
     }
 }
