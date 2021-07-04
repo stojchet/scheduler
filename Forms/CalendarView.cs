@@ -3,7 +3,7 @@ using System.Windows.Forms;
 
 namespace Scheduler.Forms
 {
-    public partial class CalendarView : Form
+    public class CalendarView : Form
     {
         /* ------------------------------ Private Widgets ------------------------------*/
         private TableLayoutPanel TitlePanel;
@@ -12,7 +12,6 @@ namespace Scheduler.Forms
         private FlowLayoutPanel DatePanel;
         private Label DateLabel;
         private Label CurrentDateLabel;
-        private CheckedListBox TaskList;
         private Button SearchButton;
         private FlowLayoutPanel ButtonsPanel;
         private Button AddTaskButton;
@@ -27,45 +26,60 @@ namespace Scheduler.Forms
         private ToolStripMenuItem saveDataToolStripMenuItem;
         private ToolStripMenuItem preferencesToolStripMenuItem;
         private ToolStripMenuItem setWorkingHoursToolStripMenuItem;
+        private DataGridView TaskList;
+        private DataGridViewTextBoxColumn Time;
+        private DataGridViewTextBoxColumn TaskName;
+        private DataGridViewTextBoxColumn Duration;
         private ContextMenuStrip ItemMenuStrip;
 
         /* ------------------------------ Private Methods ------------------------------*/
         private void LoadTasks()
         {
-            this.TaskList.Items.Clear();
+            this.TaskList.Rows.Clear();
 
             if (CurrentDay != null)
             {
-                foreach (Task task in CurrentDay.tasks)
+                TaskList.Rows.Add(CurrentDay.tasks.Count);
+                for(int i = 0; i < TaskList.RowCount; ++i)
                 {
-                    this.TaskList.Items.Add(task);
+                    TaskList.Rows[i].Cells["Time"].Value = CurrentDay.getTimeRangeForTask(CurrentDay[i]);
+                    TaskList.Rows[i].Cells["TaskName"].Value = CurrentDay[i].name;
+                    TaskList.Rows[i].Cells["Duration"].Value = CurrentDay[i].duration;
+                    TaskList.Rows[i].Tag = CurrentDay[i];
                 }
             }
         }
 
         private void InitializeComponent()
         {
-            this.TitlePanel = new System.Windows.Forms.TableLayoutPanel();
-            this.TitleLabel = new System.Windows.Forms.Label();
-            this.DatePanel = new System.Windows.Forms.FlowLayoutPanel();
-            this.DateLabel = new System.Windows.Forms.Label();
-            this.SearchButton = new System.Windows.Forms.Button();
-            this.CurrentDateLabel = new System.Windows.Forms.Label();
-            this.TaskList = new System.Windows.Forms.CheckedListBox();
-            this.ButtonsPanel = new System.Windows.Forms.FlowLayoutPanel();
-            this.AddTaskButton = new System.Windows.Forms.Button();
-            this.NextDayButton = new System.Windows.Forms.Button();
-            this.PreviousDayButton = new System.Windows.Forms.Button();
-            this.MainMenu = new System.Windows.Forms.MenuStrip();
-            this.fIleToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.loadDataToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.saveDataToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.preferencesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.setWorkingHoursToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.DatePicker = new Scheduler.Controls.DatePicker();
+            DataGridViewCellStyle dataGridViewCellStyle1 = new DataGridViewCellStyle();
+            DataGridViewCellStyle dataGridViewCellStyle2 = new DataGridViewCellStyle();
+            DataGridViewCellStyle dataGridViewCellStyle3 = new DataGridViewCellStyle();
+            this.TitlePanel = new TableLayoutPanel();
+            this.TitleLabel = new Label();
+            this.DatePanel = new FlowLayoutPanel();
+            this.DateLabel = new Label();
+            this.DatePicker = new Controls.DatePicker();
+            this.SearchButton = new Button();
+            this.CurrentDateLabel = new Label();
+            this.ButtonsPanel = new FlowLayoutPanel();
+            this.AddTaskButton = new Button();
+            this.TaskList = new DataGridView();
+            this.Time = new DataGridViewTextBoxColumn();
+            this.TaskName = new DataGridViewTextBoxColumn();
+            this.Duration = new DataGridViewTextBoxColumn();
+            this.NextDayButton = new Button();
+            this.PreviousDayButton = new Button();
+            this.MainMenu = new MenuStrip();
+            this.fIleToolStripMenuItem = new ToolStripMenuItem();
+            this.saveDataToolStripMenuItem = new ToolStripMenuItem();
+            this.loadDataToolStripMenuItem = new ToolStripMenuItem();
+            this.preferencesToolStripMenuItem = new ToolStripMenuItem();
+            this.setWorkingHoursToolStripMenuItem = new ToolStripMenuItem();
             this.TitlePanel.SuspendLayout();
             this.DatePanel.SuspendLayout();
             this.ButtonsPanel.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.TaskList)).BeginInit();
             this.MainMenu.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -76,8 +90,8 @@ namespace Scheduler.Forms
             this.TitlePanel.Controls.Add(this.TitleLabel, 0, 0);
             this.TitlePanel.Controls.Add(this.DatePanel, 0, 1);
             this.TitlePanel.Controls.Add(this.CurrentDateLabel, 0, 2);
-            this.TitlePanel.Controls.Add(this.TaskList, 0, 3);
             this.TitlePanel.Controls.Add(this.ButtonsPanel, 0, 4);
+            this.TitlePanel.Controls.Add(this.TaskList, 0, 3);
             this.TitlePanel.Dock = System.Windows.Forms.DockStyle.Fill;
             this.TitlePanel.Location = new System.Drawing.Point(0, 28);
             this.TitlePanel.Margin = new System.Windows.Forms.Padding(0);
@@ -127,6 +141,18 @@ namespace Scheduler.Forms
             this.DateLabel.TabIndex = 3;
             this.DateLabel.Text = "Date:";
             // 
+            // DatePicker
+            // 
+            this.DatePicker.Anchor = System.Windows.Forms.AnchorStyles.Left;
+            this.DatePicker.AutoSize = true;
+            this.DatePicker.BackColor = System.Drawing.Color.Transparent;
+            this.DatePicker.Font = new System.Drawing.Font("Segoe UI", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.DatePicker.Location = new System.Drawing.Point(57, 0);
+            this.DatePicker.Margin = new System.Windows.Forms.Padding(0);
+            this.DatePicker.Name = "DatePicker";
+            this.DatePicker.Size = new System.Drawing.Size(180, 46);
+            this.DatePicker.TabIndex = 2;
+            // 
             // SearchButton
             // 
             this.SearchButton.Anchor = System.Windows.Forms.AnchorStyles.None;
@@ -151,18 +177,6 @@ namespace Scheduler.Forms
             this.CurrentDateLabel.Size = new System.Drawing.Size(0, 37);
             this.CurrentDateLabel.TabIndex = 5;
             // 
-            // TaskList
-            // 
-            this.TaskList.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.TaskList.Font = new System.Drawing.Font("Courier New", 15.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.TaskList.FormattingEnabled = true;
-            this.TaskList.Location = new System.Drawing.Point(6, 175);
-            this.TaskList.Margin = new System.Windows.Forms.Padding(6, 0, 6, 0);
-            this.TaskList.Name = "TaskList";
-            this.TaskList.Size = new System.Drawing.Size(593, 698);
-            this.TaskList.TabIndex = 6;
-            this.TaskList.MouseDown += new System.Windows.Forms.MouseEventHandler(this.TaskList_MouseDown);
-            // 
             // ButtonsPanel
             // 
             this.ButtonsPanel.Controls.Add(this.AddTaskButton);
@@ -186,6 +200,59 @@ namespace Scheduler.Forms
             this.AddTaskButton.Text = "Add Task";
             this.AddTaskButton.UseVisualStyleBackColor = true;
             this.AddTaskButton.Click += new System.EventHandler(this.AddTaskButton_Click);
+            // 
+            // TaskList
+            // 
+            this.TaskList.AllowUserToAddRows = false;
+            this.TaskList.AllowUserToDeleteRows = false;
+            this.TaskList.AllowUserToOrderColumns = true;
+            this.TaskList.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this.TaskList.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
+            this.Time,
+            this.TaskName,
+            this.Duration});
+            this.TaskList.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.TaskList.Location = new System.Drawing.Point(0, 175);
+            this.TaskList.Margin = new System.Windows.Forms.Padding(0);
+            this.TaskList.MultiSelect = false;
+            this.TaskList.Name = "TaskList";
+            this.TaskList.ReadOnly = true;
+            this.TaskList.RowHeadersWidth = 51;
+            this.TaskList.RowTemplate.Height = 24;
+            this.TaskList.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
+            this.TaskList.Size = new System.Drawing.Size(605, 698);
+            this.TaskList.TabIndex = 8;
+            this.TaskList.MouseDown += new System.Windows.Forms.MouseEventHandler(this.TaskList_MouseDown);
+            // 
+            // Time
+            // 
+            dataGridViewCellStyle1.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
+            this.Time.DefaultCellStyle = dataGridViewCellStyle1;
+            this.Time.HeaderText = "Time";
+            this.Time.MinimumWidth = 6;
+            this.Time.Name = "Time";
+            this.Time.ReadOnly = true;
+            this.Time.Width = 125;
+            // 
+            // TaskName
+            // 
+            this.TaskName.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
+            dataGridViewCellStyle2.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
+            this.TaskName.DefaultCellStyle = dataGridViewCellStyle2;
+            this.TaskName.HeaderText = "Task Name";
+            this.TaskName.MinimumWidth = 6;
+            this.TaskName.Name = "TaskName";
+            this.TaskName.ReadOnly = true;
+            // 
+            // Duration
+            // 
+            dataGridViewCellStyle3.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
+            this.Duration.DefaultCellStyle = dataGridViewCellStyle3;
+            this.Duration.HeaderText = "Duration";
+            this.Duration.MinimumWidth = 6;
+            this.Duration.Name = "Duration";
+            this.Duration.ReadOnly = true;
+            this.Duration.Width = 125;
             // 
             // NextDayButton
             // 
@@ -226,50 +293,39 @@ namespace Scheduler.Forms
             this.saveDataToolStripMenuItem,
             this.loadDataToolStripMenuItem});
             this.fIleToolStripMenuItem.Name = "fIleToolStripMenuItem";
-            this.fIleToolStripMenuItem.Size = new System.Drawing.Size(46, 26);
+            this.fIleToolStripMenuItem.Size = new System.Drawing.Size(46, 24);
             this.fIleToolStripMenuItem.Text = "File";
-            // 
-            // loadDataToolStripMenuItem
-            // 
-            this.loadDataToolStripMenuItem.Name = "loadDataToolStripMenuItem";
-            this.loadDataToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.L)));
-            this.loadDataToolStripMenuItem.Size = new System.Drawing.Size(224, 26);
-            this.loadDataToolStripMenuItem.Text = "Load Data";
-            this.loadDataToolStripMenuItem.Click += new System.EventHandler(this.loadDataToolStripMenuItem_Click);
             // 
             // saveDataToolStripMenuItem
             // 
             this.saveDataToolStripMenuItem.Name = "saveDataToolStripMenuItem";
             this.saveDataToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.S)));
-            this.saveDataToolStripMenuItem.Size = new System.Drawing.Size(224, 26);
+            this.saveDataToolStripMenuItem.Size = new System.Drawing.Size(210, 26);
             this.saveDataToolStripMenuItem.Text = "Save Data";
             this.saveDataToolStripMenuItem.Click += new System.EventHandler(this.saveDataToolStripMenuItem_Click);
+            // 
+            // loadDataToolStripMenuItem
+            // 
+            this.loadDataToolStripMenuItem.Name = "loadDataToolStripMenuItem";
+            this.loadDataToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.L)));
+            this.loadDataToolStripMenuItem.Size = new System.Drawing.Size(210, 26);
+            this.loadDataToolStripMenuItem.Text = "Load Data";
+            this.loadDataToolStripMenuItem.Click += new System.EventHandler(this.loadDataToolStripMenuItem_Click);
             // 
             // preferencesToolStripMenuItem
             // 
             this.preferencesToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.setWorkingHoursToolStripMenuItem});
             this.preferencesToolStripMenuItem.Name = "preferencesToolStripMenuItem";
-            this.preferencesToolStripMenuItem.Size = new System.Drawing.Size(99, 26);
+            this.preferencesToolStripMenuItem.Size = new System.Drawing.Size(99, 24);
             this.preferencesToolStripMenuItem.Text = "Preferences";
             // 
             // setWorkingHoursToolStripMenuItem
             // 
             this.setWorkingHoursToolStripMenuItem.Name = "setWorkingHoursToolStripMenuItem";
-            this.setWorkingHoursToolStripMenuItem.Size = new System.Drawing.Size(215, 26);
+            this.setWorkingHoursToolStripMenuItem.Size = new System.Drawing.Size(224, 26);
             this.setWorkingHoursToolStripMenuItem.Text = "Set Working Hours";
-            // 
-            // DatePicker
-            // 
-            this.DatePicker.Anchor = System.Windows.Forms.AnchorStyles.Left;
-            this.DatePicker.AutoSize = true;
-            this.DatePicker.BackColor = System.Drawing.Color.Transparent;
-            this.DatePicker.Font = new System.Drawing.Font("Segoe UI", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.DatePicker.Location = new System.Drawing.Point(57, 0);
-            this.DatePicker.Margin = new System.Windows.Forms.Padding(0);
-            this.DatePicker.Name = "DatePicker";
-            this.DatePicker.Size = new System.Drawing.Size(180, 46);
-            this.DatePicker.TabIndex = 2;
+            this.setWorkingHoursToolStripMenuItem.Click += new System.EventHandler(this.setWorkingHoursToolStripMenuItem_Click);
             // 
             // CalendarView
             // 
@@ -294,6 +350,7 @@ namespace Scheduler.Forms
             this.DatePanel.PerformLayout();
             this.ButtonsPanel.ResumeLayout(false);
             this.ButtonsPanel.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.TaskList)).EndInit();
             this.MainMenu.ResumeLayout(false);
             this.MainMenu.PerformLayout();
             this.ResumeLayout(false);
@@ -348,13 +405,13 @@ namespace Scheduler.Forms
 
         private void TaskList_MouseDown(object sender, MouseEventArgs e)
         {
-            if (e.Button == MouseButtons.Right && CurrentDay.date >= DateTime.Now)
+            if (e.Button == MouseButtons.Right)
             {
-                int index = TaskList.IndexFromPoint(e.Location);
+                int index = TaskList.HitTest(e.X, e.Y).RowIndex;
 
-                if (index != CheckedListBox.NoMatches)
+                if (index > -1)
                 {
-                    TaskList.SetSelected(index, true);
+                    TaskList.Rows[index].Selected = true;
                     ItemMenuStrip.Show(Cursor.Position);
                     ItemMenuStrip.Visible = true;
                 }
@@ -377,7 +434,7 @@ namespace Scheduler.Forms
             this.ItemMenuStrip = new ContextMenuStrip();
 
             this.ItemMenuStrip.Items.Add("Modify", null, (sender, e) => {
-                TaskView view = new TaskView((Task)TaskList.SelectedItem, (t) => {
+                TaskView view = new TaskView((Task)TaskList.SelectedRows[0].Tag, (t) => {
                     this.CurrentDay.removeTask(t);
                     Settings.MyCalendar.addTask(t);
                 });
@@ -386,7 +443,7 @@ namespace Scheduler.Forms
             });
 
             this.ItemMenuStrip.Items.Add("Delete", null, (sender, e) => {
-                Settings.MyCalendar.deleteTask(CurrentDay, (Task)TaskList.SelectedItem);
+                Settings.MyCalendar.deleteTask(CurrentDay, (Task)TaskList.SelectedRows[0].Tag);
                 LoadTasks();
             });
 
@@ -422,6 +479,14 @@ namespace Scheduler.Forms
             {
                 Settings.Save(saveDialog.FileName);
             }
+        }
+
+        private void setWorkingHoursToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            SetWorkingHoursView setWorkingHoursView = new SetWorkingHoursView((from, to) => {
+                CurrentDay.workingHoursInterval = (from, to);
+                CurrentDay.workingHours = to - from;
+            });
         }
     }
 }

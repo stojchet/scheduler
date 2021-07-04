@@ -27,7 +27,8 @@ public static class Settings
             catch (Exception)
             {
                 Settings.MyCalendar = new Calendar();
-                Settings.MyCalendar.defaultWorkingHours = 12;
+                Settings.MyCalendar.defaultWorkingHours = 8;
+                Settings.MyCalendar.defaultWorkingHoursInterval = (9, 17);
                 Console.WriteLine("Error: Cannot properly parse data!");
             }
             finally
@@ -38,7 +39,8 @@ public static class Settings
         else
         {
             Settings.MyCalendar = new Calendar();
-            Settings.MyCalendar.defaultWorkingHours = 12;
+            Settings.MyCalendar.defaultWorkingHours = 8;
+            Settings.MyCalendar.defaultWorkingHoursInterval = (9, 17);
         }
     }
 

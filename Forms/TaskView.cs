@@ -3,7 +3,7 @@ using System.Windows.Forms;
 
 namespace Scheduler.Forms
 {
-    public partial class TaskView : Form
+    public class TaskView : Form
     {
         /* ------------------------------ Private Widgets ------------------------------*/
         private TableLayoutPanel MainLayout;

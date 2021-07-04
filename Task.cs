@@ -25,8 +25,6 @@ public class Task
         this.splitTaskPtr = null;
     }
 
-    public Task(string name, DateTime deadline, Type type, bool isSplit) : this(name, deadline, 0, type, isSplit){}
-
     public override bool Equals(Object obj)
     {
         if ((obj == null) || !this.GetType().Equals(obj.GetType()))
@@ -46,7 +44,6 @@ public class Task
     {
         task.duration = hours[0];
         task.isSplit = true;
-        // TODO: Shouldn't it be deadline.AddDay(1) ? 
         task.splitTaskPtr = new Task(name, deadline, hours[1], type, false);
     }
 
@@ -54,20 +51,6 @@ public class Task
     {
         firstTask.duration += secondTask.duration;
         firstTask.isSplit = secondTask.isSplit;
-        //day.removeTask(secondTask);
         firstTask.splitTaskPtr = secondTask.splitTaskPtr;
-    }
-
-    // TODO: Think of delete, should I have single function for merge and delete?
-    public void splitAndMerge(Task task, int[] hours, int index) {
-        if (task.isSplit) {
-            //if(task.duration)
-        }
-        task.duration = hours[0];
-    }
-
-    public override string ToString()
-    {
-        return this.name + " " + new string('.', 20 - name.Length) + " " + duration + "h";
     }
 }

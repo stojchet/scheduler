@@ -160,7 +160,6 @@ public class Calendar
             day.removeTask(task);
             deleteReorderCalendar(exception.day.nextDay, day.hoursToShift * -1, day);
             ErrorInTaskParameters.Invoke();
-            // notify calendar view about exeption and show error message
         }
     }
 
