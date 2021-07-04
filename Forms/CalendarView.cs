@@ -21,8 +21,12 @@ namespace Scheduler.Forms
         private Day CurrentDay;
         private Button NextDayButton;
         private Button PreviousDayButton;
-        private Controls.HintTextBox setWorkingHours;
-        private Label workingHours;
+        private MenuStrip MainMenu;
+        private ToolStripMenuItem fIleToolStripMenuItem;
+        private ToolStripMenuItem loadDataToolStripMenuItem;
+        private ToolStripMenuItem saveDataToolStripMenuItem;
+        private ToolStripMenuItem preferencesToolStripMenuItem;
+        private ToolStripMenuItem setWorkingHoursToolStripMenuItem;
         private ContextMenuStrip ItemMenuStrip;
 
         /* ------------------------------ Private Methods ------------------------------*/
@@ -45,19 +49,24 @@ namespace Scheduler.Forms
             this.TitleLabel = new System.Windows.Forms.Label();
             this.DatePanel = new System.Windows.Forms.FlowLayoutPanel();
             this.DateLabel = new System.Windows.Forms.Label();
-            this.DatePicker = new Scheduler.Controls.DatePicker();
             this.SearchButton = new System.Windows.Forms.Button();
             this.CurrentDateLabel = new System.Windows.Forms.Label();
             this.TaskList = new System.Windows.Forms.CheckedListBox();
             this.ButtonsPanel = new System.Windows.Forms.FlowLayoutPanel();
             this.AddTaskButton = new System.Windows.Forms.Button();
-            this.setWorkingHours = new Scheduler.Controls.HintTextBox();
-            this.workingHours = new System.Windows.Forms.Label();
             this.NextDayButton = new System.Windows.Forms.Button();
             this.PreviousDayButton = new System.Windows.Forms.Button();
+            this.MainMenu = new System.Windows.Forms.MenuStrip();
+            this.fIleToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.loadDataToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.saveDataToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.preferencesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.setWorkingHoursToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.DatePicker = new Scheduler.Controls.DatePicker();
             this.TitlePanel.SuspendLayout();
             this.DatePanel.SuspendLayout();
             this.ButtonsPanel.SuspendLayout();
+            this.MainMenu.SuspendLayout();
             this.SuspendLayout();
             // 
             // TitlePanel
@@ -70,7 +79,7 @@ namespace Scheduler.Forms
             this.TitlePanel.Controls.Add(this.TaskList, 0, 3);
             this.TitlePanel.Controls.Add(this.ButtonsPanel, 0, 4);
             this.TitlePanel.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.TitlePanel.Location = new System.Drawing.Point(0, 0);
+            this.TitlePanel.Location = new System.Drawing.Point(0, 28);
             this.TitlePanel.Margin = new System.Windows.Forms.Padding(0);
             this.TitlePanel.Name = "TitlePanel";
             this.TitlePanel.RowCount = 5;
@@ -79,7 +88,7 @@ namespace Scheduler.Forms
             this.TitlePanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 50F));
             this.TitlePanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
             this.TitlePanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 50F));
-            this.TitlePanel.Size = new System.Drawing.Size(605, 951);
+            this.TitlePanel.Size = new System.Drawing.Size(605, 923);
             this.TitlePanel.TabIndex = 0;
             // 
             // TitleLabel
@@ -118,18 +127,6 @@ namespace Scheduler.Forms
             this.DateLabel.TabIndex = 3;
             this.DateLabel.Text = "Date:";
             // 
-            // DatePicker
-            // 
-            this.DatePicker.Anchor = System.Windows.Forms.AnchorStyles.Left;
-            this.DatePicker.AutoSize = true;
-            this.DatePicker.BackColor = System.Drawing.Color.Transparent;
-            this.DatePicker.Font = new System.Drawing.Font("Segoe UI", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.DatePicker.Location = new System.Drawing.Point(57, 0);
-            this.DatePicker.Margin = new System.Windows.Forms.Padding(0);
-            this.DatePicker.Name = "DatePicker";
-            this.DatePicker.Size = new System.Drawing.Size(180, 46);
-            this.DatePicker.TabIndex = 2;
-            // 
             // SearchButton
             // 
             this.SearchButton.Anchor = System.Windows.Forms.AnchorStyles.None;
@@ -162,18 +159,16 @@ namespace Scheduler.Forms
             this.TaskList.Location = new System.Drawing.Point(6, 175);
             this.TaskList.Margin = new System.Windows.Forms.Padding(6, 0, 6, 0);
             this.TaskList.Name = "TaskList";
-            this.TaskList.Size = new System.Drawing.Size(593, 726);
+            this.TaskList.Size = new System.Drawing.Size(593, 698);
             this.TaskList.TabIndex = 6;
             this.TaskList.MouseDown += new System.Windows.Forms.MouseEventHandler(this.TaskList_MouseDown);
             // 
             // ButtonsPanel
             // 
             this.ButtonsPanel.Controls.Add(this.AddTaskButton);
-            this.ButtonsPanel.Controls.Add(this.setWorkingHours);
-            this.ButtonsPanel.Controls.Add(this.workingHours);
             this.ButtonsPanel.Dock = System.Windows.Forms.DockStyle.Fill;
             this.ButtonsPanel.FlowDirection = System.Windows.Forms.FlowDirection.RightToLeft;
-            this.ButtonsPanel.Location = new System.Drawing.Point(0, 901);
+            this.ButtonsPanel.Location = new System.Drawing.Point(0, 873);
             this.ButtonsPanel.Margin = new System.Windows.Forms.Padding(0);
             this.ButtonsPanel.Name = "ButtonsPanel";
             this.ButtonsPanel.Size = new System.Drawing.Size(605, 50);
@@ -191,25 +186,6 @@ namespace Scheduler.Forms
             this.AddTaskButton.Text = "Add Task";
             this.AddTaskButton.UseVisualStyleBackColor = true;
             this.AddTaskButton.Click += new System.EventHandler(this.AddTaskButton_Click);
-            // 
-            // setWorkingHours
-            // 
-            this.setWorkingHours.ForeColor = System.Drawing.Color.DarkGray;
-            this.setWorkingHours.Hint = null;
-            this.setWorkingHours.Location = new System.Drawing.Point(400, 3);
-            this.setWorkingHours.Name = "setWorkingHours";
-            this.setWorkingHours.Size = new System.Drawing.Size(89, 34);
-            this.setWorkingHours.TabIndex = 1;
-            this.setWorkingHours.TextChanged += new System.EventHandler(this.setWorkingHours_TextChanged);
-            // 
-            // workingHours
-            // 
-            this.workingHours.AutoSize = true;
-            this.workingHours.Location = new System.Drawing.Point(217, 0);
-            this.workingHours.Name = "workingHours";
-            this.workingHours.Size = new System.Drawing.Size(177, 28);
-            this.workingHours.TabIndex = 2;
-            this.workingHours.Text = "Set Working Hours";
             // 
             // NextDayButton
             // 
@@ -232,6 +208,69 @@ namespace Scheduler.Forms
             this.PreviousDayButton.UseVisualStyleBackColor = true;
             this.PreviousDayButton.Click += new System.EventHandler(this.leftButtonClick);
             // 
+            // MainMenu
+            // 
+            this.MainMenu.ImageScalingSize = new System.Drawing.Size(20, 20);
+            this.MainMenu.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.fIleToolStripMenuItem,
+            this.preferencesToolStripMenuItem});
+            this.MainMenu.Location = new System.Drawing.Point(0, 0);
+            this.MainMenu.Name = "MainMenu";
+            this.MainMenu.Size = new System.Drawing.Size(605, 28);
+            this.MainMenu.TabIndex = 4;
+            this.MainMenu.Text = "menuStrip1";
+            // 
+            // fIleToolStripMenuItem
+            // 
+            this.fIleToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.saveDataToolStripMenuItem,
+            this.loadDataToolStripMenuItem});
+            this.fIleToolStripMenuItem.Name = "fIleToolStripMenuItem";
+            this.fIleToolStripMenuItem.Size = new System.Drawing.Size(46, 26);
+            this.fIleToolStripMenuItem.Text = "File";
+            // 
+            // loadDataToolStripMenuItem
+            // 
+            this.loadDataToolStripMenuItem.Name = "loadDataToolStripMenuItem";
+            this.loadDataToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.L)));
+            this.loadDataToolStripMenuItem.Size = new System.Drawing.Size(224, 26);
+            this.loadDataToolStripMenuItem.Text = "Load Data";
+            this.loadDataToolStripMenuItem.Click += new System.EventHandler(this.loadDataToolStripMenuItem_Click);
+            // 
+            // saveDataToolStripMenuItem
+            // 
+            this.saveDataToolStripMenuItem.Name = "saveDataToolStripMenuItem";
+            this.saveDataToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.S)));
+            this.saveDataToolStripMenuItem.Size = new System.Drawing.Size(224, 26);
+            this.saveDataToolStripMenuItem.Text = "Save Data";
+            this.saveDataToolStripMenuItem.Click += new System.EventHandler(this.saveDataToolStripMenuItem_Click);
+            // 
+            // preferencesToolStripMenuItem
+            // 
+            this.preferencesToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.setWorkingHoursToolStripMenuItem});
+            this.preferencesToolStripMenuItem.Name = "preferencesToolStripMenuItem";
+            this.preferencesToolStripMenuItem.Size = new System.Drawing.Size(99, 26);
+            this.preferencesToolStripMenuItem.Text = "Preferences";
+            // 
+            // setWorkingHoursToolStripMenuItem
+            // 
+            this.setWorkingHoursToolStripMenuItem.Name = "setWorkingHoursToolStripMenuItem";
+            this.setWorkingHoursToolStripMenuItem.Size = new System.Drawing.Size(215, 26);
+            this.setWorkingHoursToolStripMenuItem.Text = "Set Working Hours";
+            // 
+            // DatePicker
+            // 
+            this.DatePicker.Anchor = System.Windows.Forms.AnchorStyles.Left;
+            this.DatePicker.AutoSize = true;
+            this.DatePicker.BackColor = System.Drawing.Color.Transparent;
+            this.DatePicker.Font = new System.Drawing.Font("Segoe UI", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.DatePicker.Location = new System.Drawing.Point(57, 0);
+            this.DatePicker.Margin = new System.Windows.Forms.Padding(0);
+            this.DatePicker.Name = "DatePicker";
+            this.DatePicker.Size = new System.Drawing.Size(180, 46);
+            this.DatePicker.TabIndex = 2;
+            // 
             // CalendarView
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(120F, 120F);
@@ -240,19 +279,25 @@ namespace Scheduler.Forms
             this.Controls.Add(this.PreviousDayButton);
             this.Controls.Add(this.NextDayButton);
             this.Controls.Add(this.TitlePanel);
+            this.Controls.Add(this.MainMenu);
             this.Font = new System.Drawing.Font("Segoe UI", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.MainMenuStrip = this.MainMenu;
             this.Margin = new System.Windows.Forms.Padding(5, 6, 5, 6);
             this.Name = "CalendarView";
             this.ShowIcon = false;
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "Calendar View";
+            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.CalendarView_FormClosing);
             this.TitlePanel.ResumeLayout(false);
             this.TitlePanel.PerformLayout();
             this.DatePanel.ResumeLayout(false);
             this.DatePanel.PerformLayout();
             this.ButtonsPanel.ResumeLayout(false);
             this.ButtonsPanel.PerformLayout();
+            this.MainMenu.ResumeLayout(false);
+            this.MainMenu.PerformLayout();
             this.ResumeLayout(false);
+            this.PerformLayout();
 
         }
 
@@ -320,6 +365,11 @@ namespace Scheduler.Forms
             }
         }
 
+        private void OnLoadFile()
+        {
+            PerformSearch(DateTime.Now);
+        }
+
         /* ------------------------------ Constructors ------------------------------*/
         public CalendarView()
         {
@@ -342,6 +392,36 @@ namespace Scheduler.Forms
 
             InitializeComponent();
             PerformSearch(DateTime.Now);
+            Settings.newFileLoaded += OnLoadFile;
+        }
+
+        private void loadDataToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            OpenFileDialog fileDialog = new OpenFileDialog();
+            fileDialog.Filter = "Binary File (*.bin)|*.bin";
+            fileDialog.Multiselect = false;
+            fileDialog.CheckFileExists = true;
+            fileDialog.CheckPathExists = true;
+
+            if (fileDialog.ShowDialog() == DialogResult.OK)
+            {
+                Settings.Load(fileDialog.FileName);
+            }
+        }
+
+        private void saveDataToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            SaveFileDialog saveDialog = new SaveFileDialog();
+            saveDialog.Filter = "Binary File (*.bin)|*.bin";
+            saveDialog.InitialDirectory = Environment.SpecialFolder.UserProfile.ToString();
+            saveDialog.FileName = "data";
+            saveDialog.CheckPathExists = true;
+
+
+            if (saveDialog.ShowDialog() == DialogResult.OK)
+            {
+                Settings.Save(saveDialog.FileName);
+            }
         }
     }
 }

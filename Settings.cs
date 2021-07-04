@@ -2,22 +2,27 @@
 using System.Runtime.Serialization.Formatters.Binary;
 using System;
 
+public delegate void loadFile();
+
 public static class Settings
 {
     public static Calendar MyCalendar { get; set; }
 
-    public static void Load()
+    public static event loadFile newFileLoaded;
+
+    public static void Load(string path = "data.bin")
     {
-        if (File.Exists("data.bin"))
+        if (File.Exists(path))
         {
-            FileStream stream = new FileStream("data.bin", FileMode.Open);
-            BinaryFormatter formatter = new BinaryFormatter();
+            FileStream stream = new FileStream(path, FileMode.Open);
 
             try
             {
+                BinaryFormatter formatter = new BinaryFormatter();
                 ProgramData data = (ProgramData)formatter.Deserialize(stream);
-                Settings.MyCalendar = data.MyCalendar;
+                Settings.MyCalendar = data.loadCalendar();
                 Settings.MyCalendar.currentDate = DateTime.Now;
+                newFileLoaded?.Invoke();
             }
             catch (Exception)
             {
@@ -37,14 +42,23 @@ public static class Settings
         }
     }
 
-    public static void Save()
+    public static void Save(string path = "data.bin")
     {
-        ProgramData data = new ProgramData();
-        data.MyCalendar = Settings.MyCalendar;
-        FileStream stream = new FileStream("data.bin", FileMode.Create);
+        ProgramData data = new ProgramData(Settings.MyCalendar);
+        FileStream stream = new FileStream(path, FileMode.Create);
 
-        BinaryFormatter formatter = new BinaryFormatter();
-        formatter.Serialize(stream, data);
-        stream.Close();
+        try
+        {
+            BinaryFormatter formatter = new BinaryFormatter();
+            formatter.Serialize(stream, data);
+        }
+        catch (Exception)
+        {
+            Console.WriteLine("Problem while saving file");
+        }
+        finally
+        {
+            stream.Close();
+        }
     }
 }
