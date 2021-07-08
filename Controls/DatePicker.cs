@@ -23,14 +23,14 @@ namespace Scheduler.Controls
             this.year = new Scheduler.Controls.HintTextBox();
             this.SuspendLayout();
             // 
-            // day
+            // Day
             // 
             this.day.ForeColor = System.Drawing.Color.DarkGray;
             this.day.Hint = "dd";
             this.day.Location = new System.Drawing.Point(6, 6);
             this.day.Margin = new System.Windows.Forms.Padding(6, 6, 6, 6);
             this.day.MaxLength = 2;
-            this.day.Name = "day";
+            this.day.Name = "Day";
             this.day.Size = new System.Drawing.Size(43, 34);
             this.day.TabIndex = 0;
             this.day.Text = "dd";

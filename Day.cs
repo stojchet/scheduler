@@ -5,23 +5,23 @@ using static System.Console;
 [Serializable]
 public class Day
 {
-    public DateTime date { get; set; }
-    public List<Task> tasks { get; set; }
-    public (int, int) workingHoursInterval { get; set; }
-    public int workingHours { get; set; }
-    public Day nextDay { get; set; }
-    public Day prevDay { get; set; }
+    public DateTime Date { get; set; }
+    public List<Task> Tasks { get; set; }
+    public (int, int) WorkingHoursInterval { get; set; }
+    public int WorkingHours { get; set; }
+    public Day NextDay { get; set; }
+    public Day PrevDay { get; set; }
 
-    public Task this[int i] => tasks[i];
+    public Task this[int i] => Tasks[i];
 
     public Day(DateTime date, List<Task> tasks, (int, int) workingHoursInterval, int workingHours)
     {
-        this.date = date;
-        this.tasks = tasks;
-        this.workingHoursInterval = workingHoursInterval;
-        this.workingHours = workingHours;
-        this.nextDay = null;
-        this.prevDay = null;
+        this.Date = date;
+        this.Tasks = tasks;
+        this.WorkingHoursInterval = workingHoursInterval;
+        this.WorkingHours = workingHours;
+        this.NextDay = null;
+        this.PrevDay = null;
     }
 
     public override bool Equals(Object obj)
@@ -33,65 +33,65 @@ public class Day
         else
         {
             Day d = (Day)obj;
-            return d.date == date;
+            return d.Date == Date;
         }
     }
 
-    public override int GetHashCode() => date.GetHashCode();
+    public override int GetHashCode() => Date.GetHashCode();
 
     public int totalHoursTasks() {
         int totalHours = 0;
-        foreach (Task task in tasks) {
-            totalHours += task.duration;
+        foreach (Task task in Tasks) {
+            totalHours += task.Duration;
         }
         return totalHours;
     }
 
     public string getTimeRangeForTask(Task task)
     {
-        int hours = workingHoursInterval.Item1;
-        foreach (Task t in tasks)
+        int hours = WorkingHoursInterval.Item1;
+        foreach (Task t in Tasks)
         {
             if (t.Equals(task))
             {
-                return $"{hours} : {hours + task.duration}";
+                return $"{hours} : {hours + task.Duration}";
             }
-            hours += t.duration;
+            hours += t.Duration;
         }
         return null;
     }
 
-    public bool isDayFull(int hours) => totalHoursTasks() + hours >= workingHours;
+    public bool isDayFull(int hours) => totalHoursTasks() + hours >= WorkingHours;
 
-    public int hoursToShift => totalHoursTasks() - workingHours;
+    public int hoursToShift => totalHoursTasks() - WorkingHours;
 
     public void addTask(Task task, int index)
     {
-        tasks.Insert(index, task);
+        Tasks.Insert(index, task);
     }
 
     public void changeTask(Task task, Task changedTask) {
-        for (int i = 0; i < tasks.Count; ++i) {
-            if (tasks[i] == task) {
-                tasks[i] = changedTask;
+        for (int i = 0; i < Tasks.Count; ++i) {
+            if (Tasks[i] == task) {
+                Tasks[i] = changedTask;
                 return;
             }
         }
-        WriteLine("Problem while changing the task - task not found in day");
+        WriteLine("Problem while changing the Task - Task not found in Day");
     }
 
     public void removeTask(Task task)
     {
-        tasks.Remove(task);
+        Tasks.Remove(task);
     }
 
     public int getTaskIndex(Task task) {
-        for(int i = 0; i < tasks.Count; ++i) {
-            if(tasks[i] == task) {
+        for(int i = 0; i < Tasks.Count; ++i) {
+            if(Tasks[i] == task) {
                 return i;
             }
         }
-        WriteLine("No such task exists");
+        WriteLine("No such Task exists");
         return -1;
     }
 }

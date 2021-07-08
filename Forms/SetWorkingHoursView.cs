@@ -18,7 +18,7 @@ namespace Scheduler.Forms
         private Button Cancel;
 
         public delegate void setWorkingHoursHandler(int from, int to);
-        public event setWorkingHoursHandler setWorkingHoursFunc;
+        public setWorkingHoursHandler setWorkingHoursFunc;
 
         /* ------------------------------ Private Methods ------------------------------ */
         private void InitializeComponent()
@@ -106,7 +106,7 @@ namespace Scheduler.Forms
             // 
             this.ToLabel.AutoSize = true;
             this.ToLabel.Location = new System.Drawing.Point(30, 49);
-            this.ToLabel.Margin = new System.Windows.Forms.Padding(30, 5, 5, 5);
+            this.ToLabel.Margin = new Padding(30, 5, 5, 5);
             this.ToLabel.Name = "ToLabel";
             this.ToLabel.Size = new System.Drawing.Size(36, 28);
             this.ToLabel.TabIndex = 2;
@@ -115,12 +115,12 @@ namespace Scheduler.Forms
             // to
             // 
             this.to.Location = new System.Drawing.Point(76, 49);
-            this.to.Margin = new System.Windows.Forms.Padding(5);
+            this.to.Margin = new Padding(5);
             this.to.MaxLength = 2;
             this.to.Name = "to";
             this.to.Size = new System.Drawing.Size(100, 34);
             this.to.TabIndex = 3;
-            this.to.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.Field_KeyPress);
+            this.to.KeyPress += new KeyPressEventHandler(this.Field_KeyPress);
             // 
             // buttonsFlowPanel
             // 
@@ -128,9 +128,9 @@ namespace Scheduler.Forms
             this.buttonsFlowPanel.AutoSize = true;
             this.buttonsFlowPanel.Controls.Add(this.Set);
             this.buttonsFlowPanel.Controls.Add(this.Cancel);
-            this.buttonsFlowPanel.FlowDirection = System.Windows.Forms.FlowDirection.RightToLeft;
+            this.buttonsFlowPanel.FlowDirection = FlowDirection.RightToLeft;
             this.buttonsFlowPanel.Location = new System.Drawing.Point(175, 152);
-            this.buttonsFlowPanel.Margin = new System.Windows.Forms.Padding(0);
+            this.buttonsFlowPanel.Margin = new Padding(0);
             this.buttonsFlowPanel.Name = "buttonsFlowPanel";
             this.buttonsFlowPanel.Size = new System.Drawing.Size(169, 38);
             this.buttonsFlowPanel.TabIndex = 2;
@@ -139,37 +139,38 @@ namespace Scheduler.Forms
             // 
             this.Set.AutoSize = true;
             this.Set.Location = new System.Drawing.Point(89, 0);
-            this.Set.Margin = new System.Windows.Forms.Padding(5, 0, 5, 0);
+            this.Set.Margin = new Padding(5, 0, 5, 0);
             this.Set.Name = "Set";
             this.Set.Size = new System.Drawing.Size(75, 38);
             this.Set.TabIndex = 1;
             this.Set.Text = "Set";
             this.Set.UseVisualStyleBackColor = true;
-            this.Set.Click += new System.EventHandler(this.SetButton_Click);
+            this.Set.Click += new EventHandler(this.SetButton_Click);
             // 
             // Cancel
             // 
             this.Cancel.AutoSize = true;
             this.Cancel.Location = new System.Drawing.Point(0, 0);
-            this.Cancel.Margin = new System.Windows.Forms.Padding(0, 0, 5, 0);
+            this.Cancel.Margin = new Padding(0, 0, 5, 0);
             this.Cancel.Name = "Cancel";
             this.Cancel.Size = new System.Drawing.Size(79, 38);
             this.Cancel.TabIndex = 0;
             this.Cancel.Text = "Cancel";
             this.Cancel.UseVisualStyleBackColor = true;
-            this.Cancel.Click += new System.EventHandler(this.CancelButton_Click);
+            this.Cancel.Click += new EventHandler(this.CancelButton_Click);
             // 
             // SetWorkingHoursView
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(120F, 120F);
-            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
+            this.AutoScaleMode = AutoScaleMode.Dpi;
             this.ClientSize = new System.Drawing.Size(344, 194);
             this.Controls.Add(this.MainLayout);
             this.Font = new System.Drawing.Font("Segoe UI", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.Name = "SetWorkingHoursView";
             this.ShowIcon = false;
-            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
+            this.StartPosition = FormStartPosition.CenterParent;
             this.Text = "Set Working Hours";
+            this.AcceptButton = this.Set;
             this.MainLayout.ResumeLayout(false);
             this.MainLayout.PerformLayout();
             this.mainFlowPanel.ResumeLayout(false);
@@ -177,9 +178,7 @@ namespace Scheduler.Forms
             this.buttonsFlowPanel.ResumeLayout(false);
             this.buttonsFlowPanel.PerformLayout();
             this.ResumeLayout(false);
-
         }
-
 
         public SetWorkingHoursView(setWorkingHoursHandler func)
         {
@@ -189,7 +188,7 @@ namespace Scheduler.Forms
 
         private void SetButton_Click(object sender, EventArgs e)
         {
-            if (from.Text.Length > 0 || to.Text.Length > 0)
+            if ((from.Text.Length > 0 || to.Text.Length > 0) && int.Parse(from.Text) < int.Parse(to.Text))
             {
                 setWorkingHoursFunc?.Invoke(int.Parse(from.Text), int.Parse(to.Text));
                 this.DialogResult = DialogResult.OK;
@@ -197,7 +196,7 @@ namespace Scheduler.Forms
             }
             else
             {
-                MessageBox.Show("Not valid values!", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show("Values not valid!", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
@@ -210,8 +209,7 @@ namespace Scheduler.Forms
         private bool isValueValid(string value)
         {
             int val;
-            bool result = int.TryParse(value, out val);
-            return result && val >= 0 && val <= 24;
+            return int.TryParse(value, out val) && val >= 0 && val <= 24;
         }
 
         private void Field_KeyPress(object sender, KeyPressEventArgs e)

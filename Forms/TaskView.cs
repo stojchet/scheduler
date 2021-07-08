@@ -259,15 +259,15 @@ namespace Scheduler.Forms
                 {
                     bool reorder = true;
 
-                    if (CurrentTask.deadline != this.DatePickerDeadline.GetDate() || CurrentTask.duration != int.Parse(this.Duration.Text) || CurrentTask.type != (this.TaskTypeNormal.Checked ? Type.NORMAL : Type.FIXED))
+                    if (CurrentTask.Deadline != this.DatePickerDeadline.GetDate() || CurrentTask.Duration != int.Parse(this.Duration.Text) || CurrentTask.Type != (this.TaskTypeNormal.Checked ? Type.NORMAL : Type.FIXED))
                     {
                         reorder = true;
                     }
 
-                    CurrentTask.name = this.TaskName.Text;
-                    CurrentTask.deadline = this.DatePickerDeadline.GetDate();
-                    CurrentTask.duration = int.Parse(this.Duration.Text);
-                    CurrentTask.type = this.TaskTypeNormal.Checked ? Type.NORMAL : Type.FIXED;
+                    CurrentTask.Name = this.TaskName.Text;
+                    CurrentTask.Deadline = this.DatePickerDeadline.GetDate();
+                    CurrentTask.Duration = int.Parse(this.Duration.Text);
+                    CurrentTask.Type = this.TaskTypeNormal.Checked ? Type.NORMAL : Type.FIXED;
 
                     if (reorder)
                     {
@@ -285,7 +285,7 @@ namespace Scheduler.Forms
 
         private void showErrorInTaskMessage()
         {
-            MessageBox.Show("No space to add task.");
+            MessageBox.Show("No space to add Task.");
             close = false;
         }
 
@@ -307,11 +307,11 @@ namespace Scheduler.Forms
         {
             CurrentTask = task;
             CallerAction = reorderAction;
-            this.TaskName.Text = task.name;
-            this.DatePickerDeadline.SetDate(task.deadline);
-            this.Duration.Text = task.duration.ToString();
+            this.TaskName.Text = task.Name;
+            this.DatePickerDeadline.SetDate(task.Deadline);
+            this.Duration.Text = task.Duration.ToString();
 
-            if (task.type == Type.NORMAL)
+            if (task.Type == Type.NORMAL)
             {
                 this.TaskTypeNormal.Checked = true;
             }

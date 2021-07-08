@@ -2,17 +2,17 @@
 
 class NoSpaceForTaskExeption: Exception
 {
-    public Day day { get; set; }
-    public Task task { get; set; }
-    public int hours { get; set; }
+    public Day Day { get; set; }
+    public Task Task { get; set; }
+    public int Hours { get; set; }
     public NoSpaceForTaskExeption() : base() { }
     public NoSpaceForTaskExeption(string message) : base(message) { }
 
     public NoSpaceForTaskExeption(string message, Day day, Task task, int hours): base(message)
     {
-        this.day = day;
-        this.task = task;
-        this.hours = hours;
+        this.Day = day;
+        this.Task = task;
+        this.Hours = hours;
     }
 
 }

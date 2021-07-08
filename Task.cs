@@ -6,23 +6,23 @@ public enum Type {FIXED, NORMAL}
 [Serializable]
 public class Task
 {
-    public string name { get; set; }
+    public string Name { get; set; }
     
-    public DateTime deadline { get; set; } // format dd.mm.yyyy hh:mm:ss
-    public int duration { get; set; }
-    public Type type { get; set; }
-    public bool isSplit { get; set; }
-    public Task splitTaskPtr { get; set; }
+    public DateTime Deadline { get; set; } // format dd.mm.yyyy hh:mm:ss
+    public int Duration { get; set; }
+    public Type Type { get; set; }
+    public bool IsSplit { get; set; }
+    public Task SplitTaskPtr { get; set; }
 
 
     public Task(string name, DateTime deadline, int duration, Type type, bool isSplit)
     {
-        this.name = name;
-        this.deadline = deadline;
-        this.duration = duration;
-        this.type = type;
-        this.isSplit = isSplit;
-        this.splitTaskPtr = null;
+        this.Name = name;
+        this.Deadline = deadline;
+        this.Duration = duration;
+        this.Type = type;
+        this.IsSplit = isSplit;
+        this.SplitTaskPtr = null;
     }
 
     public override bool Equals(Object obj)
@@ -34,23 +34,23 @@ public class Task
         else
         {
             Task t = (Task)obj;
-            return t.name == name;
+            return t.Name == Name;
         }
     }
 
-    public override int GetHashCode() => name.GetHashCode();
+    public override int GetHashCode() => Name.GetHashCode();
 
     public void splitTask(int[] hours, int index, Task task, Day day)
     {
-        task.duration = hours[0];
-        task.isSplit = true;
-        task.splitTaskPtr = new Task(name, deadline, hours[1], type, false);
+        task.Duration = hours[0];
+        task.IsSplit = true;
+        task.SplitTaskPtr = new Task(Name, Deadline, hours[1], Type, false);
     }
 
     public void mergeTasks(Task firstTask, Task secondTask)
     {
-        firstTask.duration += secondTask.duration;
-        firstTask.isSplit = secondTask.isSplit;
-        firstTask.splitTaskPtr = secondTask.splitTaskPtr;
+        firstTask.Duration += secondTask.Duration;
+        firstTask.IsSplit = secondTask.IsSplit;
+        firstTask.SplitTaskPtr = secondTask.SplitTaskPtr;
     }
 }

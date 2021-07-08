@@ -4,22 +4,22 @@
 public class ProgramData
 {
     public List<Day> Days { get; set; }
-    public int defaultWorkingHours { get; set; }
-    public (int, int) defaultWorkingHoursInterval { get; set; }
+    public int DefaultWorkingHours { get; set; }
+    public (int, int) DefaultWorkingHoursInterval { get; set; }
 
     public ProgramData(Calendar MyCalendar)
     {
-        this.Days = MyCalendar.days;
-        this.defaultWorkingHours = MyCalendar.defaultWorkingHours;
-        this.defaultWorkingHoursInterval = MyCalendar.defaultWorkingHoursInterval;
+        this.Days = MyCalendar.Days;
+        this.DefaultWorkingHours = MyCalendar.DefaultWorkingHours;
+        this.DefaultWorkingHoursInterval = MyCalendar.DefaultWorkingHoursInterval;
     }
 
     public Calendar loadCalendar()
     {
         Calendar MyCalendar = new Calendar();
-        MyCalendar.days = Days;
-        MyCalendar.defaultWorkingHours = defaultWorkingHours;
-        MyCalendar.defaultWorkingHoursInterval = defaultWorkingHoursInterval;
+        MyCalendar.Days = Days;
+        MyCalendar.DefaultWorkingHours = DefaultWorkingHours;
+        MyCalendar.DefaultWorkingHoursInterval = DefaultWorkingHoursInterval;
 
         return MyCalendar;
     }

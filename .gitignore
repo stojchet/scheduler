@@ -7,8 +7,8 @@
 instructions.txt
 Properties/
 App.config
-*.csproj
 *.sln
+*.bin
 
 # User-specific files
 *.rsuser
