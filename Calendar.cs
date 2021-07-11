@@ -15,6 +15,7 @@ public class Calendar
     public Calendar()
     {
         this.Days = new List<Day>();
+        Days.Add(new Day(DateTime.Now, new List<Task>(), DefaultWorkingHoursInterval, DefaultWorkingHours));
         this.CurrentDate = DateTime.Now; // format dd.mm.yyyy hh:mm:ss
     }
 
@@ -23,8 +24,6 @@ public class Calendar
         this.Days = days;
         this.CurrentDate = DateTime.Now; // format dd.mm.yyyy hh:mm:ss
     }
-
-    /* ----------------------------- Utilities ------------------------------ */
 
     private static int numberOfDaysInRange(DateTime startingDate, DateTime endDate) => (endDate.Date - startingDate.Date).Days + 1;
 
@@ -35,8 +34,6 @@ public class Calendar
         DateTime val;
         return (DateTime.TryParse(date, out val)) && (numberOfDaysInRange(DateTime.Now, val) > 0) ? true : false;
     }
-
-    private bool shouldAddDay(Task task) => Days[Days.Count - 1].hoursToShift * -1 < task.Duration;
 
     public Day getDayByDate(DateTime date)
     {
@@ -50,13 +47,27 @@ public class Calendar
         return null;
     }
 
+    private bool shouldAddDay(Task task)
+    {
+        int hours = task.Duration;
+        Day day = Days[Days.Count - 1];
+        while (day != null && !day.isDayFull(0) && isDateValid(DateTime.Now, day.Date))
+        {
+            hours += day.hoursToShift;
+            day = day.PrevDay;
+        }
+        return hours > 0;
+    }
+
     public bool addDaysUpToDate(DateTime date, int duration)
     {
         int daysToAdd;
-        if (Days.Count == 0)
+        if (Days.Count == 0 || numberOfDaysInRange(Days[Days.Count - 1].Date, DateTime.Now) > 1)
         {
             daysToAdd = numberOfDaysInRange(date, DateTime.Now);
             Days.Add(new Day(DateTime.Now, new List<Task>(), DefaultWorkingHoursInterval, DefaultWorkingHours));
+            duration -= Days[0].WorkingHours;
+            daysToAdd--;
         }
         else
         {
@@ -64,10 +75,11 @@ public class Calendar
         }
         for(int i = 0; i < daysToAdd; ++i)
         {
-            if(duration == 0)
+            if(duration == 0 || !isDateValid(Days[Days.Count - 1].Date.AddDays(1), date))
             {
                 break;
             }
+
             Day newDay = new Day(Days[Days.Count - 1].Date.AddDays(1), new List<Task>(), DefaultWorkingHoursInterval, DefaultWorkingHours);
             newDay.PrevDay = Days[Days.Count - 1];
             Days[Days.Count - 1].NextDay = newDay;
@@ -77,13 +89,11 @@ public class Calendar
         return duration <= 0;
     }
 
-    // TODO: Fix
     public List<Day> getRangeOfDaysForTask(Task task)
     {
         List<Day> validDays = new List<Day>();
 
         Day newDay;
-        // calculate duration
         if (Days.Count == 0)
         {
             newDay = new Day(CurrentDate, new List<Task>(), DefaultWorkingHoursInterval, DefaultWorkingHours);
@@ -93,15 +103,17 @@ public class Calendar
 
         if (shouldAddDay(task))
         {
-            // TODO: Calculate correctly the task duration left
-            Day day = Days[Days.Count - 1];
+            Day day = isDateValid(Days[Days.Count - 1].Date, DateTime.Now) ? Days[Days.Count - 1] : Days[0];
             int durationLeft = task.Duration;
             while (day.PrevDay != null && !day.isDayFull(0))
             {
                 durationLeft += day.hoursToShift;
                 day = day.PrevDay;
             }
-            addDaysUpToDate(task.Deadline, durationLeft);
+            if(!addDaysUpToDate(task.Deadline, durationLeft))
+            {
+                throw new NoSpaceForTaskExeption("No space to add task");
+            }
         }
 
         int numberOfValidDaysInRange = numberOfDaysInRange(CurrentDate, task.Deadline);
@@ -111,7 +123,7 @@ public class Calendar
         for (int i = 0; i < numberOfValidDaysInRange; ++i)
         {
             // TODO: First Condition?
-            if (Days.Count <= i || Days.Count - 1 < startIndex + i)
+            if (Days.Count - 1 < startIndex + i)
             {
                 break;
             }
@@ -176,7 +188,16 @@ public class Calendar
 
     public void _addTask(Task task)
     {
-        List<Day> validDays = getRangeOfDaysForTask(task);
+        List<Day> validDays;
+        try
+        {
+            validDays = getRangeOfDaysForTask(task);
+        }
+        catch(NoSpaceForTaskExeption e)
+        {
+            ErrorInTaskParameters?.Invoke();
+            return;
+        }
 
         foreach (Day day in validDays)
         {

@@ -285,7 +285,7 @@ namespace Scheduler.Forms
 
         private void showErrorInTaskMessage()
         {
-            MessageBox.Show("No space to add Task.");
+            MessageBox.Show("No space to add Task.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             close = false;
         }
 
