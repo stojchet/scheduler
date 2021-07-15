@@ -378,7 +378,7 @@ namespace Scheduler.Forms
 
         private void PerformSearch(DateTime date)
         {
-            CurrentDay = Settings.MyCalendar.getDayByDate(date);
+            CurrentDay = Settings.MyCalendar.getDayByDate(date.Date);
             this.CurrentDateLabel.Text = date.ToShortDateString();
             LoadTasks();
         }
@@ -395,7 +395,8 @@ namespace Scheduler.Forms
             });
 
             createTask.ShowDialog();
-            PerformSearch(DateTime.Parse(CurrentDateLabel.Text));
+            DateTime d = DateTime.Parse(CurrentDateLabel.Text);
+            PerformSearch(d.Date);
         }
 
         private void leftButtonClick(object sender, EventArgs e)

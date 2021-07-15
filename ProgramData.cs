@@ -16,11 +16,6 @@ public class ProgramData
 
     public Calendar loadCalendar()
     {
-        Calendar MyCalendar = new Calendar();
-        MyCalendar.Days = Days;
-        MyCalendar.DefaultWorkingHours = DefaultWorkingHours;
-        MyCalendar.DefaultWorkingHoursInterval = DefaultWorkingHoursInterval;
-
-        return MyCalendar;
+        return new Calendar(Days, DefaultWorkingHoursInterval, DefaultWorkingHours);
     }
 }

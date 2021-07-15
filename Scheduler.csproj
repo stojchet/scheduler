@@ -5,7 +5,7 @@
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{1F6FE665-3863-440A-97E8-12B5F87E0078}</ProjectGuid>
-    <OutputType>WinExe</OutputType>
+	<OutputType>Exe</OutputType>
     <RootNamespace>Scheduler</RootNamespace>
     <AssemblyName>Scheduler</AssemblyName>
     <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
@@ -31,6 +31,7 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+	<DisableWinExeOutputInference>true</DisableWinExeOutputInference>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />

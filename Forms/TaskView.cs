@@ -242,7 +242,12 @@ namespace Scheduler.Forms
 
         private bool AllFieldsCorrect()
         {
-            return this.TaskName.Text.Length > 0 && Calendar.isDateValid(DatePickerDeadline.GetDate().ToString()) && Duration.Text.Length > 0;
+            DateTime val;
+            if(DateTime.TryParse(DatePickerDeadline.GetDate().ToString(), out val))
+            {
+                return this.TaskName.Text.Length > 0 && Calendar.isDateValid(DateTime.Now, val) && Duration.Text.Length > 0;
+            }
+            return false;
         }
 
         private void FormButton_Click(object sender, EventArgs e)
