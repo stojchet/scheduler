@@ -5,8 +5,8 @@
 
 # My Specific
 instructions.txt
-Properties/
-App.config
+Properties/*
+!Properties/AssemblyInfo.cs
 *.sln
 *.bin
 
