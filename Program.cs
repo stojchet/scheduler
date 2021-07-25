@@ -3,7 +3,7 @@ using static System.Console;
 using System.Windows.Forms;
 static class Program
 {
-    private const int totalTests = 9;
+    private const int totalTests = 13;
     private static int totalPassed = 0;
 
     static void assert(bool b)
@@ -31,10 +31,13 @@ static class Program
 
         t = new Task("a long task", DateTime.Today.AddDays(30), 100, Type.NORMAL, false);
         cal.addTask(t);
+        assert(current.Tasks.Count == 1);
         cal.deleteTask(current, t);
+        assert(current.Tasks.Count == 0);
 
         // Error - No space in the day
         t = new Task("error", DateTime.Now, 20, Type.NORMAL, false);
+        assert(current.Tasks.Count == 0);
 
         // Error
         t = new Task("buy groceries", DateTime.Today, 5, Type.NORMAL, false);
@@ -42,6 +45,7 @@ static class Program
         Task t1 = new Task("clean room", DateTime.Today.AddDays(2), 5, Type.NORMAL, false);
         cal.addTask(t1);
         // will throw error 
+        /*******************Not throwing an exeption******************/
         Task t2 = new Task("do homework", DateTime.Today, 5, Type.NORMAL, false);
         cal.addTask(t2);
         assert(current.Tasks.Count == 2);
@@ -75,21 +79,23 @@ static class Program
     {
         try
         {
-            Settings.Load();
             test();
-            if (Environment.OSVersion.Version.Major >= 6)
-                SetProcessDPIAware();
-
-            Application.EnableVisualStyles();
-            Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new Scheduler.Forms.CalendarView());
+            WriteLine($"{totalPassed}/{totalTests} Passed!\n" +
+                $"{totalTests - totalPassed} remain unexecuted!\n");
         }
-        catch(Exception e)
+        catch(Exception)
         {
             WriteLine($"{totalPassed}/{totalTests} Passed!\n" +
                 $"{totalTests - totalPassed} remain unexecuted!\n" +
                 $"Failed at assert number: {totalPassed + 1}");
         }
+        Settings.Load();
+        if (Environment.OSVersion.Version.Major >= 6)
+            SetProcessDPIAware();
+
+        Application.EnableVisualStyles();
+        Application.SetCompatibleTextRenderingDefault(false);
+        Application.Run(new Scheduler.Forms.CalendarView());
     }
 
     [System.Runtime.InteropServices.DllImport("user32.dll")]
