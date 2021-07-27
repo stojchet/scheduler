@@ -24,18 +24,7 @@ public class Day
         this.PrevDay = null;
     }
 
-    public override bool Equals(Object obj)
-    {
-        if ((obj == null) || !this.GetType().Equals(obj.GetType()))
-        {
-            return false;
-        }
-        else
-        {
-            Day d = (Day)obj;
-            return d.Date == Date;
-        }
-    }
+    public override bool Equals(Object obj) => obj is Day d && d.Date == Date;
 
     public override int GetHashCode() => Date.GetHashCode();
 
@@ -70,28 +59,8 @@ public class Day
         Tasks.Insert(index, task);
     }
 
-    public void changeTask(Task task, Task changedTask) {
-        for (int i = 0; i < Tasks.Count; ++i) {
-            if (Tasks[i] == task) {
-                Tasks[i] = changedTask;
-                return;
-            }
-        }
-        WriteLine("Problem while changing the Task - Task not found in Day");
-    }
-
     public void removeTask(Task task)
     {
         Tasks.Remove(task);
-    }
-
-    public int getTaskIndex(Task task) {
-        for(int i = 0; i < Tasks.Count; ++i) {
-            if(Tasks[i] == task) {
-                return i;
-            }
-        }
-        WriteLine("No such Task exists");
-        return -1;
     }
 }

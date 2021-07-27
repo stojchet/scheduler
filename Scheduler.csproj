@@ -64,7 +64,7 @@
     <Compile Include="Forms\TaskView.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="NoSpaceForTaskExeption.cs" />
+    <Compile Include="NoSpaceForTaskException.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="ProgramData.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

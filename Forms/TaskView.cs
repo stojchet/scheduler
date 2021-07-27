@@ -257,11 +257,12 @@ namespace Scheduler.Forms
                 if (CurrentTask == null)
                 {
                     CurrentTask = new Task(this.TaskName.Text, this.DatePickerDeadline.GetDate(), this.Duration.Text.Length > 0 ? int.Parse(this.Duration.Text) : 0,
-                        this.TaskTypeNormal.Checked ? Type.NORMAL : Type.FIXED, false);
+                        this.TaskTypeNormal.Checked ? Type.NORMAL : Type.FIXED);
                     CallerAction?.Invoke(CurrentTask);
                 }
                 else
                 {
+                    // TODO: WTF reorder flag??????????
                     bool reorder = true;
 
                     if (CurrentTask.Deadline != this.DatePickerDeadline.GetDate() || CurrentTask.Duration != int.Parse(this.Duration.Text) || CurrentTask.Type != (this.TaskTypeNormal.Checked ? Type.NORMAL : Type.FIXED))
