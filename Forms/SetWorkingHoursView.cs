@@ -10,12 +10,13 @@ namespace Scheduler.Forms
         private Label TitleLabel;
         private FlowLayoutPanel mainFlowPanel;
         private Label FromLabel;
-        private TextBox from;
         private Label ToLabel;
-        private TextBox to;
         private FlowLayoutPanel buttonsFlowPanel;
         private Button Set;
         private Button Cancel;
+        private Controls.HintTextBox from;
+        private Controls.HintTextBox to;
+        private Button setDefault;
 
         public delegate void setWorkingHoursHandler(int from, int to);
         public setWorkingHoursHandler setWorkingHoursFunc;
@@ -27,12 +28,13 @@ namespace Scheduler.Forms
             this.TitleLabel = new System.Windows.Forms.Label();
             this.mainFlowPanel = new System.Windows.Forms.FlowLayoutPanel();
             this.FromLabel = new System.Windows.Forms.Label();
-            this.from = new System.Windows.Forms.TextBox();
+            this.from = new Scheduler.Controls.HintTextBox();
             this.ToLabel = new System.Windows.Forms.Label();
-            this.to = new System.Windows.Forms.TextBox();
+            this.to = new Scheduler.Controls.HintTextBox();
             this.buttonsFlowPanel = new System.Windows.Forms.FlowLayoutPanel();
             this.Set = new System.Windows.Forms.Button();
             this.Cancel = new System.Windows.Forms.Button();
+            this.setDefault = new System.Windows.Forms.Button();
             this.MainLayout.SuspendLayout();
             this.mainFlowPanel.SuspendLayout();
             this.buttonsFlowPanel.SuspendLayout();
@@ -52,7 +54,7 @@ namespace Scheduler.Forms
             this.MainLayout.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 40F));
             this.MainLayout.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
             this.MainLayout.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 45F));
-            this.MainLayout.Size = new System.Drawing.Size(344, 194);
+            this.MainLayout.Size = new System.Drawing.Size(361, 194);
             this.MainLayout.TabIndex = 0;
             // 
             // TitleLabel
@@ -60,7 +62,7 @@ namespace Scheduler.Forms
             this.TitleLabel.Anchor = System.Windows.Forms.AnchorStyles.None;
             this.TitleLabel.AutoSize = true;
             this.TitleLabel.Font = new System.Drawing.Font("Segoe UI", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.TitleLabel.Location = new System.Drawing.Point(77, 6);
+            this.TitleLabel.Location = new System.Drawing.Point(85, 6);
             this.TitleLabel.Margin = new System.Windows.Forms.Padding(0);
             this.TitleLabel.Name = "TitleLabel";
             this.TitleLabel.Size = new System.Drawing.Size(190, 28);
@@ -75,10 +77,10 @@ namespace Scheduler.Forms
             this.mainFlowPanel.Controls.Add(this.from);
             this.mainFlowPanel.Controls.Add(this.ToLabel);
             this.mainFlowPanel.Controls.Add(this.to);
-            this.mainFlowPanel.Location = new System.Drawing.Point(81, 50);
+            this.mainFlowPanel.Location = new System.Drawing.Point(91, 54);
             this.mainFlowPanel.Margin = new System.Windows.Forms.Padding(0);
             this.mainFlowPanel.Name = "mainFlowPanel";
-            this.mainFlowPanel.Size = new System.Drawing.Size(182, 88);
+            this.mainFlowPanel.Size = new System.Drawing.Size(178, 80);
             this.mainFlowPanel.TabIndex = 1;
             // 
             // FromLabel
@@ -94,19 +96,18 @@ namespace Scheduler.Forms
             // from
             // 
             this.mainFlowPanel.SetFlowBreak(this.from, true);
-            this.from.Location = new System.Drawing.Point(77, 5);
-            this.from.Margin = new System.Windows.Forms.Padding(5);
-            this.from.MaxLength = 2;
+            this.from.ForeColor = System.Drawing.Color.DarkGray;
+            this.from.Hint = null;
+            this.from.Location = new System.Drawing.Point(75, 3);
             this.from.Name = "from";
             this.from.Size = new System.Drawing.Size(100, 34);
-            this.from.TabIndex = 1;
-            this.from.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.Field_KeyPress);
+            this.from.TabIndex = 3;
             // 
             // ToLabel
             // 
             this.ToLabel.AutoSize = true;
-            this.ToLabel.Location = new System.Drawing.Point(30, 49);
-            this.ToLabel.Margin = new Padding(30, 5, 5, 5);
+            this.ToLabel.Location = new System.Drawing.Point(30, 45);
+            this.ToLabel.Margin = new System.Windows.Forms.Padding(30, 5, 5, 5);
             this.ToLabel.Name = "ToLabel";
             this.ToLabel.Size = new System.Drawing.Size(36, 28);
             this.ToLabel.TabIndex = 2;
@@ -114,63 +115,79 @@ namespace Scheduler.Forms
             // 
             // to
             // 
-            this.to.Location = new System.Drawing.Point(76, 49);
-            this.to.Margin = new Padding(5);
-            this.to.MaxLength = 2;
+            this.mainFlowPanel.SetFlowBreak(this.to, true);
+            this.to.ForeColor = System.Drawing.Color.DarkGray;
+            this.to.Hint = null;
+            this.to.Location = new System.Drawing.Point(74, 43);
             this.to.Name = "to";
             this.to.Size = new System.Drawing.Size(100, 34);
-            this.to.TabIndex = 3;
-            this.to.KeyPress += new KeyPressEventHandler(this.Field_KeyPress);
+            this.to.TabIndex = 4;
             // 
             // buttonsFlowPanel
             // 
             this.buttonsFlowPanel.Anchor = System.Windows.Forms.AnchorStyles.Right;
             this.buttonsFlowPanel.AutoSize = true;
+            this.buttonsFlowPanel.Controls.Add(this.setDefault);
             this.buttonsFlowPanel.Controls.Add(this.Set);
             this.buttonsFlowPanel.Controls.Add(this.Cancel);
-            this.buttonsFlowPanel.FlowDirection = FlowDirection.RightToLeft;
-            this.buttonsFlowPanel.Location = new System.Drawing.Point(175, 152);
-            this.buttonsFlowPanel.Margin = new Padding(0);
+            this.buttonsFlowPanel.FlowDirection = System.Windows.Forms.FlowDirection.RightToLeft;
+            this.buttonsFlowPanel.Location = new System.Drawing.Point(6, 152);
+            this.buttonsFlowPanel.Margin = new System.Windows.Forms.Padding(0);
             this.buttonsFlowPanel.Name = "buttonsFlowPanel";
-            this.buttonsFlowPanel.Size = new System.Drawing.Size(169, 38);
+            this.buttonsFlowPanel.Size = new System.Drawing.Size(355, 38);
             this.buttonsFlowPanel.TabIndex = 2;
             // 
             // Set
             // 
             this.Set.AutoSize = true;
+            this.Set.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
             this.Set.Location = new System.Drawing.Point(89, 0);
-            this.Set.Margin = new Padding(5, 0, 5, 0);
+            this.Set.Margin = new System.Windows.Forms.Padding(5, 0, 5, 0);
             this.Set.Name = "Set";
-            this.Set.Size = new System.Drawing.Size(75, 38);
+            this.Set.Size = new System.Drawing.Size(120, 38);
             this.Set.TabIndex = 1;
-            this.Set.Text = "Set";
+            this.Set.Text = "Set - Today";
             this.Set.UseVisualStyleBackColor = true;
-            this.Set.Click += new EventHandler(this.SetButton_Click);
+            this.Set.Click += new System.EventHandler(this.SetButton_Click);
             // 
             // Cancel
             // 
             this.Cancel.AutoSize = true;
+            this.Cancel.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
             this.Cancel.Location = new System.Drawing.Point(0, 0);
-            this.Cancel.Margin = new Padding(0, 0, 5, 0);
+            this.Cancel.Margin = new System.Windows.Forms.Padding(0, 0, 5, 0);
             this.Cancel.Name = "Cancel";
             this.Cancel.Size = new System.Drawing.Size(79, 38);
             this.Cancel.TabIndex = 0;
             this.Cancel.Text = "Cancel";
             this.Cancel.UseVisualStyleBackColor = true;
-            this.Cancel.Click += new EventHandler(this.CancelButton_Click);
+            this.Cancel.Click += new System.EventHandler(this.CancelButton_Click);
+            // 
+            // setDefault
+            // 
+            this.setDefault.AutoSize = true;
+            this.setDefault.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
+            this.setDefault.Location = new System.Drawing.Point(219, 0);
+            this.setDefault.Margin = new System.Windows.Forms.Padding(5, 0, 5, 0);
+            this.setDefault.Name = "setDefault";
+            this.setDefault.Size = new System.Drawing.Size(131, 38);
+            this.setDefault.TabIndex = 1;
+            this.setDefault.Text = "Set - Default";
+            this.setDefault.UseVisualStyleBackColor = true;
+            this.setDefault.Click += new System.EventHandler(this.setDefault_Click);
             // 
             // SetWorkingHoursView
             // 
+            this.AcceptButton = this.setDefault;
             this.AutoScaleDimensions = new System.Drawing.SizeF(120F, 120F);
-            this.AutoScaleMode = AutoScaleMode.Dpi;
-            this.ClientSize = new System.Drawing.Size(344, 194);
+            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
+            this.ClientSize = new System.Drawing.Size(361, 194);
             this.Controls.Add(this.MainLayout);
             this.Font = new System.Drawing.Font("Segoe UI", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.Name = "SetWorkingHoursView";
             this.ShowIcon = false;
-            this.StartPosition = FormStartPosition.CenterParent;
+            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
             this.Text = "Set Working Hours";
-            this.AcceptButton = this.Set;
             this.MainLayout.ResumeLayout(false);
             this.MainLayout.PerformLayout();
             this.mainFlowPanel.ResumeLayout(false);
@@ -178,17 +195,25 @@ namespace Scheduler.Forms
             this.buttonsFlowPanel.ResumeLayout(false);
             this.buttonsFlowPanel.PerformLayout();
             this.ResumeLayout(false);
+
         }
 
-        public SetWorkingHoursView(setWorkingHoursHandler func)
+        private void NumericField_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            e.Handled = !char.IsDigit(e.KeyChar) && !char.IsControl(e.KeyChar);
+        }
+
+        public SetWorkingHoursView(setWorkingHoursHandler func, (int, int) workingHours)
         {
             InitializeComponent();
             this.setWorkingHoursFunc = func;
+            from.Hint = workingHours.Item1.ToString();
+            to.Hint = workingHours.Item2.ToString();
         }
 
         private void SetButton_Click(object sender, EventArgs e)
         {
-            if ((from.Text.Length > 0 || to.Text.Length > 0) && int.Parse(from.Text) < int.Parse(to.Text))
+            if (!from.IsHintDisplayed && !to.IsHintDisplayed && (from.Text.Length > 0 || to.Text.Length > 0) && int.Parse(from.Text) < int.Parse(to.Text))
             {
                 setWorkingHoursFunc?.Invoke(int.Parse(from.Text), int.Parse(to.Text));
                 this.DialogResult = DialogResult.OK;
@@ -215,6 +240,26 @@ namespace Scheduler.Forms
         private void Field_KeyPress(object sender, KeyPressEventArgs e)
         {
             e.Handled = (!char.IsDigit(e.KeyChar) && !char.IsControl(e.KeyChar)) || !isValueValid(((TextBox)sender).Text + e.KeyChar) && e.KeyChar != '\b';
+        }
+
+        private void setDefault_Click(object sender, EventArgs e)
+        {
+            if (!from.IsHintDisplayed && !to.IsHintDisplayed && (from.Text.Length > 0 || to.Text.Length > 0) && int.Parse(from.Text) < int.Parse(to.Text))
+            {
+                if(Settings.MyCalendar.changeDefaultWorkingHours((int.Parse(from.Text), int.Parse(to.Text))))
+                {
+                    this.DialogResult = DialogResult.OK;
+                    this.Close();
+                }
+                else
+                {
+                    MessageBox.Show("No space for tasks!", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+            }
+            else
+            {
+                MessageBox.Show("Values not valid!", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
     }
 }

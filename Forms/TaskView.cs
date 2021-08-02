@@ -21,7 +21,7 @@ namespace Scheduler.Forms
         private Button FormButton;
 
         /* ------------------------------ Public Variables ------------------------------*/
-        public delegate void TaskAction(Task task);
+        public delegate bool TaskAction(Task task, Task oldTask);
 
         /* ------------------------------ Private Variables ------------------------------*/
         private TaskAction CallerAction;
@@ -226,6 +226,7 @@ namespace Scheduler.Forms
             this.Name = "TaskView";
             this.ShowIcon = false;
             this.StartPosition = FormStartPosition.CenterParent;
+            this.FormClosing += TaskView_FormClosing;
             this.Text = "Task View";
 
             this.MainLayout.ResumeLayout(false);
@@ -233,6 +234,11 @@ namespace Scheduler.Forms
             this.TaskInformationGroup.ResumeLayout(false);
             this.TaskInformationGroup.PerformLayout();
             this.ResumeLayout(false);
+        }
+
+        private void TaskView_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            Settings.MyCalendar.ErrorInTaskParameters -= showErrorInTaskMessage;
         }
 
         private void Duration_KeyPress(object sender, KeyPressEventArgs e)
@@ -250,6 +256,8 @@ namespace Scheduler.Forms
             return false;
         }
 
+        private bool hasDataBeenChanged() => CurrentTask.Name != this.TaskName.Text || CurrentTask.Deadline != this.DatePickerDeadline.GetDate() || CurrentTask.Duration != int.Parse(this.Duration.Text) || CurrentTask.Type != (this.TaskTypeNormal.Checked ? Type.NORMAL : Type.FIXED);
+
         private void FormButton_Click(object sender, EventArgs e)
         {
             if (AllFieldsCorrect())
@@ -258,26 +266,22 @@ namespace Scheduler.Forms
                 {
                     CurrentTask = new Task(this.TaskName.Text, this.DatePickerDeadline.GetDate(), this.Duration.Text.Length > 0 ? int.Parse(this.Duration.Text) : 0,
                         this.TaskTypeNormal.Checked ? Type.NORMAL : Type.FIXED);
-                    CallerAction?.Invoke(CurrentTask);
+                    if (CallerAction != null && !CallerAction.Invoke(CurrentTask, null))
+                    {
+                        showErrorInTaskMessage();
+                    }
                 }
                 else
                 {
-                    // TODO: WTF reorder flag??????????
-                    bool reorder = true;
-
-                    if (CurrentTask.Deadline != this.DatePickerDeadline.GetDate() || CurrentTask.Duration != int.Parse(this.Duration.Text) || CurrentTask.Type != (this.TaskTypeNormal.Checked ? Type.NORMAL : Type.FIXED))
+                    if (hasDataBeenChanged())
                     {
-                        reorder = true;
-                    }
+                        Task modifiedTask = new Task(this.TaskName.Text, this.DatePickerDeadline.GetDate(), this.Duration.Text.Length > 0 ? int.Parse(this.Duration.Text) : 0,
+                        this.TaskTypeNormal.Checked ? Type.NORMAL : Type.FIXED);
 
-                    CurrentTask.Name = this.TaskName.Text;
-                    CurrentTask.Deadline = this.DatePickerDeadline.GetDate();
-                    CurrentTask.Duration = int.Parse(this.Duration.Text);
-                    CurrentTask.Type = this.TaskTypeNormal.Checked ? Type.NORMAL : Type.FIXED;
-
-                    if (reorder)
-                    {
-                        CallerAction?.Invoke(CurrentTask);
+                        if (CallerAction != null && !CallerAction.Invoke(modifiedTask, CurrentTask))
+                        {
+                            showErrorInTaskMessage();
+                        }
                     }
                 }
 
@@ -291,7 +295,7 @@ namespace Scheduler.Forms
 
         private void showErrorInTaskMessage()
         {
-            MessageBox.Show("No space to add Task.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            MessageBox.Show("Error while adding task.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             close = false;
         }
 
@@ -315,7 +319,7 @@ namespace Scheduler.Forms
             CallerAction = reorderAction;
             this.TaskName.Text = task.Name;
             this.DatePickerDeadline.SetDate(task.Deadline);
-            this.Duration.Text = task.Duration.ToString();
+            this.Duration.Text = task.getFullTaskDuration().ToString();
 
             if (task.Type == Type.NORMAL)
             {

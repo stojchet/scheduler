@@ -390,8 +390,9 @@ namespace Scheduler.Forms
 
         private void AddTaskButton_Click(object sender, EventArgs e)
         {
-            TaskView createTask = new TaskView((t) => {
-                Settings.MyCalendar.addTask(t);
+            TaskView createTask = new TaskView((t, oldTask) => {
+                if (!Settings.MyCalendar.doesTaskExist(t)) { Settings.MyCalendar.addTask(t); return true; }
+                return false;
             });
 
             createTask.ShowDialog();
@@ -442,9 +443,14 @@ namespace Scheduler.Forms
             this.ItemMenuStrip = new ContextMenuStrip();
 
             this.ItemMenuStrip.Items.Add("Modify", null, (sender, e) => {
-                TaskView view = new TaskView((Task)TaskList.SelectedRows[0].Tag, (t) => {
-                    this.CurrentDay.removeTask(t);
-                    Settings.MyCalendar.addTask(t);
+                TaskView view = new TaskView((Task)TaskList.SelectedRows[0].Tag, (t, oldTask) => {
+                    if (!Settings.MyCalendar.doesTaskExist(t))
+                    {
+                        Settings.MyCalendar.deleteTask(CurrentDay, oldTask);
+                        Settings.MyCalendar.addTask(t);
+                        return true;
+                    }
+                    return false;
                 });
                 view.ShowDialog();
                 LoadTasks();
@@ -498,14 +504,15 @@ namespace Scheduler.Forms
             }
 
             SetWorkingHoursView setWorkingHoursView = new SetWorkingHoursView((from, to) => {
+                (int, int) prev = CurrentDay.WorkingHoursInterval;
                 CurrentDay.WorkingHoursInterval = (from, to);
-                int prev = CurrentDay.WorkingHours;
-                CurrentDay.WorkingHours = to - from;
                 Settings.MyCalendar.changeWorkingHours(CurrentDay.Date, prev);
-                LoadTasks();
-            });
+            }, CurrentDay.WorkingHoursInterval);
 
-            setWorkingHoursView.ShowDialog(); 
+            if(setWorkingHoursView.ShowDialog() == DialogResult.OK)
+            {
+                LoadTasks();
+            } 
         }
 
         private void addTaskToolStripMenuItem_Click(object sender, EventArgs e)
@@ -515,17 +522,7 @@ namespace Scheduler.Forms
 
         private void TaskList_CellDoubleClick(object sender, DataGridViewCellEventArgs e)
         {
-
-            if (e.RowIndex != -1)
-            {
-                TaskView view = new TaskView((Task)TaskList.Rows[e.RowIndex].Tag, (t) =>
-                    {
-                        this.CurrentDay.removeTask(t);
-                        Settings.MyCalendar.addTask(t);
-                    });
-                view.ShowDialog();
-                LoadTasks(); 
-            }
+            this.ItemMenuStrip.Items[0].PerformClick();
         }
     }
 }

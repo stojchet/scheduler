@@ -44,8 +44,7 @@ static class Program
         cal.addTask(t);
         Task t1 = new Task("clean room", DateTime.Today.AddDays(2), 5, Type.NORMAL);
         cal.addTask(t1);
-        // will throw error 
-        /*******************Not throwing an exeption******************/
+
         Task t2 = new Task("do homework", DateTime.Today, 5, Type.NORMAL);
         cal.addTask(t2);
         assert(current.Tasks.Count == 2);

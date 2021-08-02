@@ -29,7 +29,6 @@
         /* ------------------------------ Public Variables ------------------------------ */
         public bool IsHintDisplayed { get; private set; } = false;
 
-
         /* ------------------------------ Private Methods ------------------------------ */
         private void SetStyle(TextBoxStyle style)
         {

@@ -8,18 +8,17 @@ public class Day
     public DateTime Date { get; set; }
     public List<Task> Tasks { get; set; }
     public (int, int) WorkingHoursInterval { get; set; }
-    public int WorkingHours { get; set; }
+    public int WorkingHours => WorkingHoursInterval.Item2 - WorkingHoursInterval.Item1;
     public Day NextDay { get; set; }
     public Day PrevDay { get; set; }
 
     public Task this[int i] => Tasks[i];
 
-    public Day(DateTime date, List<Task> tasks, (int, int) workingHoursInterval, int workingHours)
+    public Day(DateTime date, List<Task> tasks, (int, int) workingHoursInterval)
     {
         this.Date = date;
         this.Tasks = tasks;
         this.WorkingHoursInterval = workingHoursInterval;
-        this.WorkingHours = workingHours;
         this.NextDay = null;
         this.PrevDay = null;
     }

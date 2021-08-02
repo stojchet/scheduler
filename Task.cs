@@ -45,18 +45,7 @@ public class Task
         return taskDuration;
     }
 
-    public override bool Equals(Object obj)
-    {
-        if ((obj == null) || !this.GetType().Equals(obj.GetType()))
-        {
-            return false;
-        }
-        else
-        {
-            Task t = (Task)obj;
-            return t.Name == Name;
-        }
-    }
+    public override bool Equals(Object obj) => obj is Task t && t.Name == Name && t.getFullTaskDuration() == getFullTaskDuration() && t.Deadline == Deadline;
 
     public override int GetHashCode() => Name.GetHashCode();
 
@@ -92,23 +81,11 @@ public class Task
     {
         firstTask.Duration += secondTask.Duration;
 
-        if (dir == Direction.NEXT)
+        firstTask.NextSplitTaskPtr = secondTask.NextSplitTaskPtr;
+        if (firstTask.NextSplitTaskPtr != null)
         {
-            firstTask.NextSplitTaskPtr = secondTask.NextSplitTaskPtr;
-            if (firstTask.NextSplitTaskPtr != null)
-            {
-                firstTask.NextSplitTaskPtr.PrevSplitTaskPtr = firstTask;
-            }
+            firstTask.NextSplitTaskPtr.PrevSplitTaskPtr = firstTask;
         }
-        else
-        {
-            firstTask.PrevSplitTaskPtr = secondTask.PrevSplitTaskPtr;
-            if(firstTask.PrevSplitTaskPtr != null)
-            {
-                firstTask.PrevSplitTaskPtr.NextSplitTaskPtr = firstTask;
-            }
-        }
-        
     }
 
     public Task getTaskByDirection(Direction dir)

@@ -17,7 +17,7 @@ public class Calendar
         this.Days = new List<Day>();
         this.DefaultWorkingHours = 8;
         this.DefaultWorkingHoursInterval = (9, 17);
-        Days.Add(new Day(DateTime.Now, new List<Task>(), DefaultWorkingHoursInterval, DefaultWorkingHours));
+        Days.Add(new Day(DateTime.Now, new List<Task>(), DefaultWorkingHoursInterval));
         this.CurrentDate = DateTime.Now; // format dd.mm.yyyy hh:mm:ss
     }
 
@@ -62,7 +62,7 @@ public class Calendar
         int daysToAdd = numberOfDaysInRange(Days[Days.Count - 1].Date, date);
         for (int i = 0; i < daysToAdd; ++i)
         {
-            Day newDay = new Day(Days[Days.Count - 1].Date.AddDays(1), new List<Task>(), DefaultWorkingHoursInterval, DefaultWorkingHours);
+            Day newDay = new Day(Days[Days.Count - 1].Date.AddDays(1), new List<Task>(), DefaultWorkingHoursInterval);
             newDay.PrevDay = Days[Days.Count - 1];
             Days[Days.Count - 1].NextDay = newDay;
             Days.Add(newDay);
@@ -95,6 +95,21 @@ public class Calendar
         return validDays;
     }
 
+    public bool doesTaskExist(Task t)
+    {
+        foreach(Day day in Days)
+        {
+            foreach(Task task in day.Tasks)
+            {
+                if (t.Equals(task))
+                {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
     public event ErrorNotify ErrorInTaskParameters;
 
     /* ----------------------------- Utility for add and delete task ----------------------------- */
@@ -106,8 +121,9 @@ public class Calendar
         int hours = hoursToShift;
         Day dirDay = dir == Direction.NEXT ? day.NextDay : day.PrevDay;
 
-        //  DateTime.Now > dirDay.Date it cannot go in past
         if (dirDay == null || (dirDay.Equals(returnPoint) && dir == Direction.PREVIOUS) || (day.hoursToShift <= 0 && dir == Direction.NEXT)) { return; }
+        
+        if (numberOfDaysInRange(DateTime.Now, dirDay.Date) <= 0) { return; }
 
         List<Task> tasks = new List<Task>();
 
@@ -175,7 +191,6 @@ public class Calendar
 
         foreach (Task task in tasks) { dirDay.addTask(task, dir == Direction.NEXT ? 0 : dirDay.Tasks.Count); }
 
-        // for delete only shift fixed hours and for add it chages according to the hours we shifted
         reorderCalendar(dirDay, dir == Direction.NEXT ? dirDay.hoursToShift < 0 ? hoursToShift : dirDay.hoursToShift : hoursToShift, returnPoint, dir);
     }
 
@@ -196,7 +211,11 @@ public class Calendar
         }
         catch (NoSpaceForTaskException exception)
         {
-            if(exception.Day != null)
+            if (task.Type == Type.FIXED)
+            {
+                exception.Day.removeTask(task);
+            }
+            else if (task.Type == Type.NORMAL && exception.Day != null)
             {
                 Day day = exception.Day;
                 deleteTask(day, exception.Task);
@@ -206,7 +225,6 @@ public class Calendar
                     reorderCalendar(day, day.hoursToShift, null, Direction.NEXT);
                 }
             }
-
             ErrorInTaskParameters?.Invoke();
         }
     }
@@ -260,6 +278,7 @@ public class Calendar
                 return;
             }
         }
+        throw new NoSpaceForTaskException("There is no space to add the Task", null, null, 0);
     }
 
     /* ------------------------------- Delete Task ----------------------------------- */
@@ -283,31 +302,51 @@ public class Calendar
         }
     }
 
+    /* ------------------------------ Modify Task ---------------------------------- */
+    public void modifyTask(Task task, DateTime newDeadline, String newName)
+    {
+        Task t = task;
+        while (t != null)
+        {
+            t.Name = newName;
+            t.Deadline = newDeadline;
+        }
+
+        t = task.NextSplitTaskPtr;
+        while (t != null)
+        {
+            t.Name = newName;
+            t.Deadline = newDeadline;
+        }
+    }
+
     /* --------------------------- Change Working Hours ------------------------------- */
-    public void changeWorkingHours(DateTime date, int previousWorkingHours)
+    public bool changeWorkingHours(DateTime date, (int, int) previousWorkingHoursInterval)
     {
         Day day = getDayByDate(date);
+        int previousWorkingHours = previousWorkingHoursInterval.Item2 - previousWorkingHoursInterval.Item1;
         if(previousWorkingHours - day.WorkingHours < 0)
         {
             reorderCalendar(Days[Days.Count - 1], Math.Abs(previousWorkingHours - day.WorkingHours), day, Direction.PREVIOUS);
         }
         else if(previousWorkingHours - day.WorkingHours > 0)
         {
-            int hoursNeeded = shouldAddDay(previousWorkingHours - day.WorkingHours);
+            int hoursNeeded = shouldAddDay(day.hoursToShift);
             if (hoursNeeded > 0)
             {
                 int daysNeeded = (int)Math.Ceiling((double)hoursNeeded / day.WorkingHours);
-                addDaysUpToDate(Days[Days.Count].Date.AddDays(daysNeeded));
+                addDaysUpToDate(Days[Days.Count - 1].Date.AddDays(daysNeeded));
             }
-            
+
+            int shiftHours = day.hoursToShift;
             try
             {
-                reorderCalendar(day, previousWorkingHours - day.WorkingHours, null, Direction.NEXT);
+                reorderCalendar(day, shiftHours, null, Direction.NEXT);
             }
             catch(NoSpaceForTaskException exception)
             {
                 int tryWorkingHours = day.WorkingHours;
-                day.WorkingHours = previousWorkingHours;
+                day.WorkingHoursInterval = previousWorkingHoursInterval;
 
                 if (exception.Day != null)
                 {
@@ -315,14 +354,17 @@ public class Calendar
                     {
                         reorderCalendar(exception.Day, exception.Day.hoursToShift - (previousWorkingHours - tryWorkingHours), null, Direction.NEXT);
                     }
-                    reorderCalendar(exception.Day, previousWorkingHours - tryWorkingHours, day.PrevDay, Direction.PREVIOUS);
+                    reorderCalendar(exception.Day, shiftHours, day.PrevDay, Direction.PREVIOUS);
                 }
+                
                 ErrorInTaskParameters?.Invoke();
+                return false;
             }
         }
+        return true;
     }
 
-    public void changeDefaultWorkingHours((int, int) workingHoursInterval)
+    public bool changeDefaultWorkingHours((int, int) workingHoursInterval)
     {
         this.DefaultWorkingHours = workingHoursInterval.Item2 - workingHoursInterval.Item1;
         this.DefaultWorkingHoursInterval = workingHoursInterval;
@@ -331,12 +373,21 @@ public class Calendar
 
         while (day != null)
         {
-            int previousWorkingHours = day.WorkingHours;
-            day.WorkingHours = this.DefaultWorkingHours;
+            (int, int) previousWorkingHoursInterval = day.WorkingHoursInterval;
             day.WorkingHoursInterval = this.DefaultWorkingHoursInterval;
 
-            changeWorkingHours(day.Date, previousWorkingHours);
+            if(!changeWorkingHours(day.Date, previousWorkingHoursInterval))
+            {
+                while(day != null && numberOfDaysInRange(DateTime.Now, day.Date) > 0)
+                {
+                    day.WorkingHoursInterval = previousWorkingHoursInterval;
+                    reorderCalendar(Days[Days.Count - 1], day.hoursToShift * -1, day.PrevDay, Direction.PREVIOUS);
+                    day = day.PrevDay;
+                }
+                return false;
+            }
             day = day.NextDay;
         }
+        return true;
     }
 }
