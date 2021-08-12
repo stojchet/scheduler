@@ -433,13 +433,13 @@ namespace Scheduler.Forms
 
         private void OnLoadFile()
         {
-            PerformSearch(DateTime.Now);
+            PerformSearch(DateTime.Today);
         }
 
         /* ------------------------------ Constructors ------------------------------*/
         public CalendarView()
         {
-            this.CurrentDay = Settings.MyCalendar.getDayByDate(DateTime.Now);
+            this.CurrentDay = Settings.MyCalendar.getDayByDate(DateTime.Today);
             this.ItemMenuStrip = new ContextMenuStrip();
 
             this.ItemMenuStrip.Items.Add("Modify", null, (sender, e) => {
@@ -462,7 +462,7 @@ namespace Scheduler.Forms
             });
 
             InitializeComponent();
-            PerformSearch(DateTime.Now);
+            PerformSearch(DateTime.Today);
             Settings.newFileLoaded += OnLoadFile;
         }
 

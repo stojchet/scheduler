@@ -3,7 +3,7 @@ using static System.Console;
 using System.Windows.Forms;
 static class Program
 {
-    private const int totalTests = 13;
+    private const int totalTests = 12;
     private static int totalPassed = 0;
 
     static void assert(bool b)
@@ -48,15 +48,15 @@ static class Program
         Task t2 = new Task("do homework", DateTime.Today, 5, Type.NORMAL);
         cal.addTask(t2);
         assert(current.Tasks.Count == 2);
-        assert(current.NextDay.Tasks.Count == 1);
+        assert(cal.Days[current.Date.AddDays(1).Date].Tasks.Count == 1);
         t2 = new Task("do homework", DateTime.Today.AddDays(1), 5, Type.NORMAL);
         cal.addTask(t2);
 
         // delete split task 
-        cal.deleteTask(cal.getDayByDate(DateTime.Now), t2);
+        cal.deleteTask(cal.getDayByDate(DateTime.Today), t2);
 
         assert(current.Tasks.Count == 2);
-        assert(current.NextDay.Tasks.Count == 1);
+        assert(cal.Days[current.Date.AddDays(1).Date].Tasks.Count == 1);
 
         t2 = new Task("do homework", DateTime.Today.AddDays(2), 7, Type.NORMAL);
         cal.addTask(t2);
@@ -69,8 +69,7 @@ static class Program
         cal.addTask(t5);
 
         assert(current.Tasks.Count == 2);
-        assert(current.NextDay.Tasks.Count == 2);
-        assert(current.NextDay.NextDay.Tasks.Count == 3);
+        assert(cal.Days[current.Date.AddDays(1).Date].Tasks.Count == 2);
     }
 
     [STAThread]

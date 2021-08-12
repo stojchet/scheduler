@@ -251,12 +251,15 @@ namespace Scheduler.Forms
             DateTime val;
             if(DateTime.TryParse(DatePickerDeadline.GetDate().ToString(), out val))
             {
-                return this.TaskName.Text.Length > 0 && Calendar.isDateValid(DateTime.Now, val) && Duration.Text.Length > 0;
+                return this.TaskName.Text.Length > 0 && DateTime.Today <= val && Duration.Text.Length > 0;
             }
             return false;
         }
 
-        private bool hasDataBeenChanged() => CurrentTask.Name != this.TaskName.Text || CurrentTask.Deadline != this.DatePickerDeadline.GetDate() || CurrentTask.Duration != int.Parse(this.Duration.Text) || CurrentTask.Type != (this.TaskTypeNormal.Checked ? Type.NORMAL : Type.FIXED);
+        private bool hasDataBeenChanged() => CurrentTask.Name != this.TaskName.Text 
+            || CurrentTask.Deadline != this.DatePickerDeadline.GetDate() 
+            || CurrentTask.Duration != int.Parse(this.Duration.Text) 
+            || CurrentTask.Type != (this.TaskTypeNormal.Checked ? Type.NORMAL : Type.FIXED);
 
         private void FormButton_Click(object sender, EventArgs e)
         {
@@ -264,7 +267,8 @@ namespace Scheduler.Forms
             {
                 if (CurrentTask == null)
                 {
-                    CurrentTask = new Task(this.TaskName.Text, this.DatePickerDeadline.GetDate(), this.Duration.Text.Length > 0 ? int.Parse(this.Duration.Text) : 0,
+                    CurrentTask = new Task(this.TaskName.Text, this.DatePickerDeadline.GetDate(), 
+                        this.Duration.Text.Length > 0 ? int.Parse(this.Duration.Text) : 0,
                         this.TaskTypeNormal.Checked ? Type.NORMAL : Type.FIXED);
                     if (CallerAction != null && !CallerAction.Invoke(CurrentTask, null))
                     {
@@ -275,7 +279,8 @@ namespace Scheduler.Forms
                 {
                     if (hasDataBeenChanged())
                     {
-                        Task modifiedTask = new Task(this.TaskName.Text, this.DatePickerDeadline.GetDate(), this.Duration.Text.Length > 0 ? int.Parse(this.Duration.Text) : 0,
+                        Task modifiedTask = new Task(this.TaskName.Text, this.DatePickerDeadline.GetDate(), 
+                        this.Duration.Text.Length > 0 ? int.Parse(this.Duration.Text) : 0,
                         this.TaskTypeNormal.Checked ? Type.NORMAL : Type.FIXED);
 
                         if (CallerAction != null && !CallerAction.Invoke(modifiedTask, CurrentTask))

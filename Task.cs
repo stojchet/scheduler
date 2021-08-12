@@ -8,7 +8,7 @@ public enum Direction { PREVIOUS = 1, NEXT = -1 }
 public class Task
 {
     public string Name { get; set; }
-    
+
     public DateTime Deadline { get; set; } // format dd.mm.yyyy hh:mm:ss
     public int Duration { get; set; }
     public Type Type { get; set; }
@@ -29,14 +29,14 @@ public class Task
     {
         int taskDuration = 0;
         Task t = this;
-        while(t != null)
+        while (t != null)
         {
             taskDuration += t.Duration;
             t = t.PrevSplitTaskPtr;
         }
 
         t = this.NextSplitTaskPtr;
-        while(t != null)
+        while (t != null)
         {
             taskDuration += t.Duration;
             t = t.NextSplitTaskPtr;
@@ -45,18 +45,20 @@ public class Task
         return taskDuration;
     }
 
-    public override bool Equals(Object obj) => obj is Task t && t.Name == Name && t.getFullTaskDuration() == getFullTaskDuration() && t.Deadline == Deadline;
+    public override bool Equals(Object obj) => obj is Task t 
+        && t.Name == Name && t.Duration == Duration && t.Deadline == Deadline && t.Type == Type;
 
-    public override int GetHashCode() => Name.GetHashCode();
+    public override int GetHashCode() => Name.GetHashCode() + getFullTaskDuration().GetHashCode()
+        + Deadline.GetHashCode() + Type.GetHashCode();
 
     public void splitTask(int[] hours, int index, Task task, Day day, Direction dir)
     {
         task.Duration = hours[0];
-        if(dir == Direction.NEXT)
+        if (dir == Direction.NEXT)
         {
             Task newTask = new Task(Name, Deadline, hours[1], Type);
             newTask.NextSplitTaskPtr = task.NextSplitTaskPtr;
-            if(task.NextSplitTaskPtr != null)
+            if (task.NextSplitTaskPtr != null)
             {
                 task.NextSplitTaskPtr.PrevSplitTaskPtr = newTask;
             }
@@ -67,33 +69,37 @@ public class Task
         {
             Task newTask = new Task(Name, Deadline, hours[1], Type);
             newTask.PrevSplitTaskPtr = task.PrevSplitTaskPtr;
-            if(task.PrevSplitTaskPtr != null)
+            if (task.PrevSplitTaskPtr != null)
             {
                 task.PrevSplitTaskPtr.NextSplitTaskPtr = newTask;
             }
             task.PrevSplitTaskPtr = newTask;
-            task.PrevSplitTaskPtr.NextSplitTaskPtr= task;
+            task.PrevSplitTaskPtr.NextSplitTaskPtr = task;
         }
-        
+
     }
 
     public void mergeTasks(Task firstTask, Task secondTask, Direction dir)
     {
         firstTask.Duration += secondTask.Duration;
-
-        firstTask.NextSplitTaskPtr = secondTask.NextSplitTaskPtr;
-        if (firstTask.NextSplitTaskPtr != null)
+        if(dir == Direction.NEXT)
         {
-            firstTask.NextSplitTaskPtr.PrevSplitTaskPtr = firstTask;
+            firstTask.NextSplitTaskPtr = secondTask.NextSplitTaskPtr;
+            if (firstTask.NextSplitTaskPtr != null)
+            {
+                firstTask.NextSplitTaskPtr.PrevSplitTaskPtr = firstTask;
+            }
         }
+        else
+        {
+            firstTask.PrevSplitTaskPtr = secondTask.PrevSplitTaskPtr;
+            if (firstTask.PrevSplitTaskPtr != null)
+            {
+                firstTask.PrevSplitTaskPtr.NextSplitTaskPtr = firstTask;
+            }
+        }        
     }
 
-    public Task getTaskByDirection(Direction dir)
-    {
-        if(dir == Direction.PREVIOUS)
-        {
-            return this.PrevSplitTaskPtr;
-        }
-        return this.NextSplitTaskPtr;
-    }
+    public Task getTaskByDirection(Direction dir) =>
+        dir == Direction.PREVIOUS ? this.PrevSplitTaskPtr : this.NextSplitTaskPtr;
 }

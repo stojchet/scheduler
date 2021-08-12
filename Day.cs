@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using static System.Console;
 
 [Serializable]
 public class Day
@@ -9,8 +8,6 @@ public class Day
     public List<Task> Tasks { get; set; }
     public (int, int) WorkingHoursInterval { get; set; }
     public int WorkingHours => WorkingHoursInterval.Item2 - WorkingHoursInterval.Item1;
-    public Day NextDay { get; set; }
-    public Day PrevDay { get; set; }
 
     public Task this[int i] => Tasks[i];
 
@@ -19,8 +16,6 @@ public class Day
         this.Date = date;
         this.Tasks = tasks;
         this.WorkingHoursInterval = workingHoursInterval;
-        this.NextDay = null;
-        this.PrevDay = null;
     }
 
     public override bool Equals(Object obj) => obj is Day d && d.Date == Date;

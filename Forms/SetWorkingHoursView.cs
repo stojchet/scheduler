@@ -233,8 +233,7 @@ namespace Scheduler.Forms
 
         private bool isValueValid(string value)
         {
-            int val;
-            return int.TryParse(value, out val) && val >= 0 && val <= 24;
+            return int.TryParse(value, out int val) && val >= 0 && val <= 24;
         }
 
         private void Field_KeyPress(object sender, KeyPressEventArgs e)

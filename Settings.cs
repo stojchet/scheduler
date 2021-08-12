@@ -21,13 +21,11 @@ public static class Settings
                 BinaryFormatter formatter = new BinaryFormatter();
                 ProgramData data = (ProgramData)formatter.Deserialize(stream);
                 Settings.MyCalendar = data.loadCalendar();
-                Settings.MyCalendar.CurrentDate = DateTime.Now;
                 newFileLoaded?.Invoke();
             }
             catch (Exception)
             {
                 Settings.MyCalendar = new Calendar();
-                Settings.MyCalendar.DefaultWorkingHours = 8;
                 Settings.MyCalendar.DefaultWorkingHoursInterval = (9, 17);
                 Console.WriteLine("Error: Cannot properly parse data!");
             }
@@ -39,8 +37,6 @@ public static class Settings
         else
         {
             Settings.MyCalendar = new Calendar();
-            Settings.MyCalendar.DefaultWorkingHours = 8;
-            Settings.MyCalendar.DefaultWorkingHoursInterval = (9, 17);
         }
     }
 
