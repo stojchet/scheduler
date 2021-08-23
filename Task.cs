@@ -46,7 +46,7 @@ public class Task
     }
 
     public override bool Equals(Object obj) => obj is Task t 
-        && t.Name == Name && t.Duration == Duration && t.Deadline == Deadline && t.Type == Type;
+        && t.Name == Name && t.getFullTaskDuration() == getFullTaskDuration() && t.Deadline == Deadline && t.Type == Type;
 
     public override int GetHashCode() => Name.GetHashCode() + getFullTaskDuration().GetHashCode()
         + Deadline.GetHashCode() + Type.GetHashCode();

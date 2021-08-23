@@ -12,6 +12,8 @@ public class Calendar
     public int DefaultWorkingHours => DefaultWorkingHoursInterval.Item2 - DefaultWorkingHoursInterval.Item1;
 
     public delegate void ErrorNotify();
+    private DateTime nextDate(DateTime date) => date.AddDays(1).Date;
+    private DateTime prevDate(DateTime date) => date.AddDays(-1).Date;
 
     public Calendar()
     {
@@ -39,10 +41,10 @@ public class Calendar
     private int shouldAddDay(int hours)
     {
         Day day = Days[LastAddedDay];
-        while (day != null && !day.isDayFull(0) && DateTime.Today <= day.Date)
+        while (day != null && !day.isDayFull() && DateTime.Today <= day.Date)
         {
             hours += day.hoursToShift;
-            day = Days.ContainsKey(day.Date.AddDays(1).Date) ? Days[day.Date.AddDays(1).Date] : null;
+            day = Days.ContainsKey(nextDate(day.Date)) ? Days[nextDate(day.Date)] : null;
         }
         return hours;
     }
@@ -52,8 +54,8 @@ public class Calendar
         int daysToAdd = numberOfDaysInRange(Days[LastAddedDay].Date, date);
         for (int i = 0; i < daysToAdd; ++i)
         {
-            Day newDay = new Day(Days[LastAddedDay].Date.AddDays(1).Date, new List<Task>(), DefaultWorkingHoursInterval);
-            Days[LastAddedDay.AddDays(1).Date] = newDay;
+            Day newDay = new Day(nextDate(Days[LastAddedDay].Date), new List<Task>(), DefaultWorkingHoursInterval);
+            Days[nextDate(LastAddedDay)] = newDay;
             LastAddedDay = newDay.Date;
         }
     }
@@ -65,7 +67,7 @@ public class Calendar
         int shouldAddDayHours = shouldAddDay(task.Duration);
         if (shouldAddDayHours > 0)
         {
-            addDaysUpToDate(Days[LastAddedDay].Date.AddDays((int)Math.Ceiling((double)shouldAddDayHours /DefaultWorkingHours)));
+            addDaysUpToDate(Days[LastAddedDay].Date.AddDays((int)Math.Ceiling((double)shouldAddDayHours / DefaultWorkingHours)));
         }
 
         int numberOfValidDaysInRange = numberOfDaysInRange(CurrentDate, task.Deadline);
@@ -96,7 +98,7 @@ public class Calendar
                 }
             }
 
-            day = Days.ContainsKey(day.Date.AddDays(1).Date) ? Days[day.Date.AddDays(1).Date] : null;
+            day = Days.ContainsKey(nextDate(day.Date)) ? Days[nextDate(day.Date)] : null;
         }
         return false;
     }
@@ -111,8 +113,8 @@ public class Calendar
     {
         int hours = hoursToShift;
         Day dirDay = dir == Direction.NEXT ? 
-            (Days.ContainsKey(day.Date.AddDays(1).Date)) ? Days[day.Date.AddDays(1).Date] : null
-            : (Days.ContainsKey(day.Date.AddDays(-1).Date)) ? Days[day.Date.AddDays(-1).Date] : null;        
+            (Days.ContainsKey(nextDate(day.Date))) ? Days[nextDate(day.Date)] : null
+            : (Days.ContainsKey(prevDate(day.Date))) ? Days[prevDate(day.Date)] : null;        
 
         if (dirDay == null || (dirDay.Equals(returnPoint) && dir == Direction.PREVIOUS) 
             || (day.hoursToShift <= 0 && dir == Direction.NEXT)) { return; }
@@ -209,11 +211,7 @@ public class Calendar
         }
         catch (NoSpaceForTaskException exception)
         {
-            if (task.Type == Type.FIXED)
-            {
-                exception.Day.removeTask(task);
-            }
-            else if (task.Type == Type.NORMAL && exception.Day != null)
+            if (task.Type == Type.NORMAL && exception.Day != null)
             {
                 Day day = exception.Day;
                 deleteTask(day, exception.Task);
@@ -229,11 +227,18 @@ public class Calendar
 
     public void _addFixedTask(Task task)
     {
+        if(task.getFullTaskDuration() > getDayByDate(task.Deadline).WorkingHours)
+        {
+            throw new NoSpaceForTaskException("There is no space to add the Task, " +
+                        "error occured during shifting the Tasks", null, null, 0);
+        }
+
         int shouldAddDayHours = shouldAddDay(task.Duration);
         if (shouldAddDayHours > 0)
         {
             addDaysUpToDate(Days[LastAddedDay].Date.AddDays((int)Math.Ceiling((double)shouldAddDayHours / DefaultWorkingHours)));
         }
+        // just add the specific day and add the task there
         if(task.Deadline > Days[LastAddedDay].Date)
         {
             addDaysUpToDate(task.Deadline);
@@ -241,7 +246,7 @@ public class Calendar
 
         Day day = getDayByDate(task.Deadline);
         day.addTask(task, 0);
-        if (day.isDayFull(0))
+        if (day.isDayFull())
         {
             reorderCalendar(day, day.hoursToShift, null, Direction.NEXT);
         }
@@ -259,17 +264,17 @@ public class Calendar
                 if (day.Tasks[i].Deadline > task.Deadline && day.Tasks[i].Type != Type.FIXED)
                 {
                     day.addTask(task, i);
-                    if (day.isDayFull(0))
+                    if (day.isDayFull())
                     {
                         reorderCalendar(day, day.hoursToShift, null, Direction.NEXT);
                     }
                     return;
                 }
             }
-            if (!day.isDayFull(0))
+            if (!day.isDayFull())
             {
                 day.addTask(task, day.Tasks.Count);
-                if (day.isDayFull(0))
+                if (day.isDayFull())
                 {
                     reorderCalendar(day, day.hoursToShift, null, Direction.NEXT);
                 }
@@ -285,7 +290,7 @@ public class Calendar
         while (task.NextSplitTaskPtr != null) 
         {
             task = task.NextSplitTaskPtr;
-            day = Days[day.Date.AddDays(1).Date];
+            day = Days[nextDate(day.Date)];
         }
 
         while (task != null)
@@ -294,11 +299,11 @@ public class Calendar
             task.NextSplitTaskPtr = null;
 
             reorderCalendar(Days[LastAddedDay], task.Duration, 
-                Days.ContainsKey(day.Date.AddDays(-1).Date) ? Days[day.Date.AddDays(-1).Date] : null,
+                Days.ContainsKey(prevDate(day.Date)) ? Days[prevDate(day.Date)] : null,
                 Direction.PREVIOUS);
 
             task = task.PrevSplitTaskPtr;
-            day = Days.ContainsKey(day.Date.AddDays(-1).Date) ? Days[day.Date.AddDays(-1).Date] : null;
+            day = Days.ContainsKey(prevDate(day.Date)) ? Days[prevDate(day.Date)] : null;
         }
     }
 
@@ -310,7 +315,7 @@ public class Calendar
         if(previousWorkingHours - day.WorkingHours < 0)
         {
             reorderCalendar(Days[LastAddedDay], Math.Abs(previousWorkingHours - day.WorkingHours), 
-                day, Direction.PREVIOUS);
+                getDayByDate(prevDate(day.Date)), Direction.PREVIOUS);
         }
         else if(previousWorkingHours - day.WorkingHours > 0)
         {
@@ -340,7 +345,7 @@ public class Calendar
                             null, Direction.NEXT);
                     }
                     reorderCalendar(exception.Day, shiftHours, 
-                        Days.ContainsKey(day.Date.AddDays(-1).Date) ? Days[day.Date.AddDays(-1).Date] : null, 
+                        Days.ContainsKey(prevDate(day.Date)) ? Days[prevDate(day.Date)] : null, 
                         Direction.PREVIOUS);
                 }
                 
@@ -368,12 +373,12 @@ public class Calendar
                 {
                     day.WorkingHoursInterval = previousWorkingHoursInterval;
                     reorderCalendar(Days[LastAddedDay], day.hoursToShift * -1, 
-                        Days.ContainsKey(day.Date.AddDays(-1).Date) ? Days[day.Date.AddDays(-1).Date] : null, Direction.PREVIOUS);
-                    day = Days.ContainsKey(day.Date.AddDays(-1).Date) ? Days[day.Date.AddDays(-1).Date] : null;
+                        Days.ContainsKey(prevDate(day.Date)) ? Days[prevDate(day.Date)] : null, Direction.PREVIOUS);
+                    day = Days.ContainsKey(prevDate(day.Date)) ? Days[prevDate(day.Date)] : null;
                 }
                 return false;
             }
-            day = Days.ContainsKey(day.Date.AddDays(1).Date) ? Days[day.Date.AddDays(1).Date] : null;
+            day = Days.ContainsKey(nextDate(day.Date)) ? Days[nextDate(day.Date)] : null;
         }
         return true;
     }

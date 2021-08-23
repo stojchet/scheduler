@@ -258,7 +258,7 @@ namespace Scheduler.Forms
 
         private bool hasDataBeenChanged() => CurrentTask.Name != this.TaskName.Text 
             || CurrentTask.Deadline != this.DatePickerDeadline.GetDate() 
-            || CurrentTask.Duration != int.Parse(this.Duration.Text) 
+            || CurrentTask.getFullTaskDuration() != int.Parse(this.Duration.Text) 
             || CurrentTask.Type != (this.TaskTypeNormal.Checked ? Type.NORMAL : Type.FIXED);
 
         private void FormButton_Click(object sender, EventArgs e)

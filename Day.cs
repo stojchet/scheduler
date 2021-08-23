@@ -44,7 +44,7 @@ public class Day
         return null;
     }
 
-    public bool isDayFull(int hours) => totalHoursTasks() + hours >= WorkingHours;
+    public bool isDayFull() => totalHoursTasks() >= WorkingHours;
 
     public int hoursToShift => totalHoursTasks() - WorkingHours;
 
