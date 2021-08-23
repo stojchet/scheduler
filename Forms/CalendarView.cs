@@ -499,7 +499,7 @@ namespace Scheduler.Forms
         {
             if(CurrentDay == null)
             {
-                Settings.MyCalendar.addDaysUpToDate(DateTime.Parse(CurrentDateLabel.Text));
+                Settings.MyCalendar.Days[DateTime.Parse(CurrentDateLabel.Text)] = new Day(DateTime.Parse(CurrentDateLabel.Text), new List<Task>(), Settings.MyCalendar.DefaultWorkingHoursInterval);
                 CurrentDay = Settings.MyCalendar.getDayByDate(DateTime.Parse(CurrentDateLabel.Text));
             }
 

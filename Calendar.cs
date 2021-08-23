@@ -20,7 +20,7 @@ public class Calendar
         this.Days = new Dictionary<DateTime, Day>();
         this.DefaultWorkingHoursInterval = (9, 17);
         Days[DateTime.Today] = new Day(DateTime.Now.Date, new List<Task>(), DefaultWorkingHoursInterval);
-        this.CurrentDate = DateTime.Today; // format dd.mm.yyyy hh:mm:ss
+        this.CurrentDate = DateTime.Today;
         this.LastAddedDay = DateTime.Today;
     }
 
@@ -29,8 +29,8 @@ public class Calendar
         this.Days = days;
         this.DefaultWorkingHoursInterval = workingHoursInterval;
         this.LastAddedDay = lastAddedDay;
-        this.CurrentDate = DateTime.Today; // format dd.mm.yyyy hh:mm:ss
-        addDaysUpToDate(DateTime.Today);
+        this.CurrentDate = DateTime.Today;
+        Days[DateTime.Today] = new Day(DateTime.Now.Date, new List<Task>(), DefaultWorkingHoursInterval);
     }
 
     private static int numberOfDaysInRange(DateTime startingDate, DateTime endDate) 
@@ -227,7 +227,7 @@ public class Calendar
 
     public void _addFixedTask(Task task)
     {
-        if(task.getFullTaskDuration() > getDayByDate(task.Deadline).WorkingHours)
+        if(Days.ContainsKey(task.Deadline) && task.getFullTaskDuration() > getDayByDate(task.Deadline).WorkingHours)
         {
             throw new NoSpaceForTaskException("There is no space to add the Task, " +
                         "error occured during shifting the Tasks", null, null, 0);
@@ -238,10 +238,9 @@ public class Calendar
         {
             addDaysUpToDate(Days[LastAddedDay].Date.AddDays((int)Math.Ceiling((double)shouldAddDayHours / DefaultWorkingHours)));
         }
-        // just add the specific day and add the task there
         if(task.Deadline > Days[LastAddedDay].Date)
         {
-            addDaysUpToDate(task.Deadline);
+            Days[task.Deadline] = new Day(task.Deadline, new List<Task>(), DefaultWorkingHoursInterval);
         }
 
         Day day = getDayByDate(task.Deadline);
